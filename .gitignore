@@ -130,4 +130,4 @@ dist
 .pnp.*
 
 # local image
-public/uploads/users
+!public/uploads/user/.gitkeep
