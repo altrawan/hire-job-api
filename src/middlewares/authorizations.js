@@ -12,7 +12,7 @@ module.exports = {
         next();
       } else {
         failed(res, {
-          code: 403,
+          code: 401,
           message: 'Your email is not verified yet',
           error: 'Unauthorized',
         });
