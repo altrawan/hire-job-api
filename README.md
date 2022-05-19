@@ -1,9 +1,17 @@
-**Note**
----
 19 Mei 2022
-1. Menyelesaikan end point auth => 05:00-07.30
-2. Menyelesaikan end point user => 09.30-11.30
-3. Menyelesaikan end point portofolio => 11.30-12.30 & 15.00-16.00
-4. Menyelesaikan end point experience => 16.00-18.00
-5. Slicing Halaman Login & Register => 19:30-24.00
+---
+1. Menyelesaikan end point auth => v
+2. Menyelesaikan end point user
+3. Menyelesaikan end point portofolio
+4. Menyelesaikan end point experience
+5. Menyelesaikan end point skills
+---
+20 Mei 2022
+---
+1. Testing semua end point backend
+2. Slicing Login (Worker), Register (Worker), Landing Page, My Profile, Edit Profile
+---
+21 Mei 2022
+---
+1. Integrasi Backend ke Fronend
 ---
