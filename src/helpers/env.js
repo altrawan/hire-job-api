@@ -8,11 +8,11 @@ module.exports = {
   API_URL: process.env.API_URL,
   APP_CLIENT: process.env.APP_CLIENT,
   // database
-  DB_HOST: process.env.PG_HOST,
-  DB_USER: process.env.PG_USER,
-  DB_PASSWORD: process.env.PG_PASSWORD,
-  DB_NAME: process.env.PG_DATABASE,
-  DB_PORT: process.env.PG_PORT,
+  DB_HOST: process.env.DB_HOST,
+  DB_USER: process.env.DB_USER,
+  DB_PASSWORD: process.env.DB_PASSWORD,
+  DB_NAME: process.env.DB_NAME,
+  DB_PORT: process.env.DB_PORT,
   // jwt
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRED: process.env.JWT_EXPIRED,
@@ -20,6 +20,7 @@ module.exports = {
   // email
   HOST_STMP: process.env.HOST_STMP,
   PORT_STMP: process.env.PORT_STMP,
+  SECURE_STMP: process.env.SECURE_STMP,
   EMAIL_AUTH_STMP: process.env.EMAIL_AUTH_STMP,
   PASS_AUTH_STMP: process.env.PASS_AUTH_STMP,
   EMAIL_FROM: process.env.EMAIL_FROM,

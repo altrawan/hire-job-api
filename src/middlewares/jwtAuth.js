@@ -4,7 +4,18 @@ const { JWT_SECRET } = require('../helpers/env');
 
 module.exports = (req, res, next) => {
   try {
-    const { token } = req.headers;
+    let token = req.headers.authorization;
+
+    if (!token) {
+      return failed(res, {
+        code: 403,
+        message: 'Please login first',
+        error: 'Forbidden',
+      });
+    }
+
+    token = token.split(' ')[1];
+
     const decoded = jwt.verify(token, JWT_SECRET);
     req.APP_DATA = { tokenDecoded: decoded };
     next();

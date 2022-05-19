@@ -1,10 +1,10 @@
-const userModel = require('../models/user.model');
+const { getUserByEmail } = require('../models/auth.model');
 const { failed } = require('../helpers/response');
 
 module.exports = {
   isVerified: async (req, res, next) => {
     try {
-      const user = await userModel.getUserByEmail(req.body.email);
+      const user = await getUserByEmail(req.body.email);
 
       if (!user.rowCount) {
         next();

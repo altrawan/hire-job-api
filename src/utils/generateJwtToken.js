@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET, JWT_EXPIRED } = require('./env');
+const { JWT_SECRET, JWT_EXPIRED } = require('../helpers/env');
 
 module.exports = async (payload) => {
   delete payload.password;

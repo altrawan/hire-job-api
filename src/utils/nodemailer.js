@@ -4,14 +4,15 @@ const path = require('path');
 const {
   HOST_STMP,
   PORT_STMP,
+  SECURE_STMP,
   EMAIL_AUTH_STMP,
   PASS_AUTH_STMP,
   EMAIL_FROM,
 } = require('../helpers/env');
 
-const transporter = nodemailer.createTransport({
-  host: HOST_STMP,
-  port: PORT_STMP,
+let transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 587,
   secure: false,
   auth: {
     user: EMAIL_AUTH_STMP,
@@ -20,36 +21,62 @@ const transporter = nodemailer.createTransport({
 });
 
 module.exports = {
-  sendEmail: (data) =>
-    new Promise((resolve, reject) => {
-      transporter.use(
-        'compile',
-        hbs({
-          viewEngine: {
-            extname: '.html',
-            partialsDir: path.resolve('./src/template/email'),
-            defaultLayout: false,
-          },
-          viewPath: path.resolve('./src/template/email'),
-          extName: '.html',
-        })
-      );
+  sendEmail: (data) => {
+    transporter.use(
+      'compile',
+      hbs({
+        viewEngine: {
+          extname: '.html',
+          partialsDir: path.resolve('./src/templates/confirm-email'),
+          defaultLayout: false,
+        },
+        viewPath: path.resolve('./src/templates/confirm-email'),
+        extName: '.html',
+      })
+    );
 
-      const emailOptions = {
-        from: `"Preworld Hire" <${EMAIL_FROM}>`,
-        to: data.to,
-        subject: data.subject,
-        text: data.text,
-        template: data.template,
-        context: data.context,
-      };
+    const emailOptions = {
+      from: '"Preworld" <admin@preworld.com>',
+      to: data.to,
+      subject: data.subject,
+      text: data.text,
+      template: data.template,
+      context: data.context,
+    };
 
-      transporter.sendMail(emailOptions, (error, info) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(info);
-        }
-      });
-    }),
+    transporter.sendMail(emailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      }
+    });
+  },
+  sendReset: (data) => {
+    transporter.use(
+      'compile',
+      hbs({
+        viewEngine: {
+          extname: '.html',
+          partialsDir: path.resolve('./src/templates/reset-password'),
+          defaultLayout: false,
+        },
+        viewPath: path.resolve('./src/templates/reset-password'),
+        extName: '.html',
+      })
+    );
+
+    const emailOptions = {
+      from: '"Preworld" <admin@preworld.com>',
+      to: data.to,
+      subject: data.subject,
+      text: data.text,
+      template: data.template,
+      context: data.context,
+    };
+
+    transporter.sendMail(emailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      }
+    });
+  },
 };

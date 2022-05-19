@@ -1,21 +1,18 @@
 const { v4: uuidv4 } = require('uuid');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { success, failed } = require('../helpers/response');
 const jwtToken = require('../utils/generateJwtToken');
 const authModel = require('../models/auth.model');
-const userModel = require('../models/user.model');
-const { sendEmail, resetPassword } = require('../utils/nodemailer');
+const { sendEmail, sendReset } = require('../utils/nodemailer');
 const { API_URL, APP_CLIENT } = require('../helpers/env');
 
 module.exports = {
   registerWorker: async (req, res) => {
     try {
-      const { name, email, phoneNumber, password, passwordConfirmation } =
-        req.body;
+      const { name, email, phoneNumber, password } = req.body;
 
-      const checkUser = await userModel.getUserByEmail(email);
+      const checkUser = await authModel.getUserByEmail(email);
       if (checkUser.rowCount > 0) {
         return failed(res, {
           code: 409,
@@ -24,37 +21,107 @@ module.exports = {
         });
       }
 
+      const id = uuidv4();
       const hashPassword = await bcrypt.hash(password, 10);
-      const setData = {
+      const token = crypto.randomBytes(30).toString('hex');
+
+      const loginData = {
         id: uuidv4(),
-        name,
+        userId: id,
         email,
-        phoneNumber,
         password: hashPassword,
+        role: 0,
+        verifyToken: token,
+      };
+
+      const userData = {
+        id,
+        name,
+        phoneNumber,
         photo: 'profile-default.png',
-        role: 'Worker',
-        verifyToken: crypto.randomBytes(30).toString('hex'),
-        isVerified: 0,
-        isActive: 0,
       };
 
       const setDataEmail = {
         to: email,
         subject: 'Please Confirm Your Account',
-        text: 'Confirm Your email Ankasa Ticketing Account',
-        template: 'email',
+        text: 'Confirm Your email Peworld Hire Job Account',
+        template: 'index',
         context: {
           url: `${API_URL}auth/verify-token?token=${token}`,
           name,
         },
       };
 
-      await sendEmail(setDataEmail);
-      await authModel.register(setData);
+      sendEmail(setDataEmail);
+      await authModel.createAccount(loginData);
+      await authModel.registerWorker(userData);
       return success(res, {
         code: 201,
         message: 'Success Registered, please verification your email',
-        data: setData,
+        data: req.body,
+      });
+    } catch (error) {
+      return failed(res, {
+        code: 500,
+        message: error.message,
+        error: 'Internal Server Error',
+      });
+    }
+  },
+  registerRecruiter: async (req, res) => {
+    try {
+      const { name, email, company, position, phoneNumber, password } =
+        req.body;
+
+      const checkUser = await authModel.getUserByEmail(email);
+      if (checkUser.rowCount > 0) {
+        return failed(res, {
+          code: 409,
+          message: 'Email already exist',
+          error: 'Conflict',
+        });
+      }
+
+      const id = uuidv4();
+      const hashPassword = await bcrypt.hash(password, 10);
+      const token = crypto.randomBytes(30).toString('hex');
+
+      const loginData = {
+        id: uuidv4(),
+        userId: id,
+        email,
+        password: hashPassword,
+        role: 1,
+        verifyToken: token,
+      };
+
+      const userData = {
+        id,
+        name,
+        company,
+        position,
+        phoneNumber,
+        photo: 'profile-default.png',
+      };
+
+      const setDataEmail = {
+        to: email,
+        subject: 'Please Confirm Your Account',
+        text: 'Confirm Your email Peworld Hire Job Account',
+        template: 'index',
+        context: {
+          url: `${API_URL}auth/verify-token?token=${token}`,
+          name,
+        },
+      };
+
+      sendEmail(setDataEmail);
+      await authModel.createAccount(loginData);
+      await authModel.registerRecruiter(userData);
+      return success(res, {
+        code: 201,
+        message: 'Success Registered, please verification your email',
+        data: req.body,
       });
     } catch (error) {
       return failed(res, {
@@ -83,18 +150,18 @@ module.exports = {
         url_login: `${APP_CLIENT}/login`,
       });
     } else {
-      failed(res, {
+      return failed(res, {
         code: 500,
         message: err.message,
         error: 'Internal Server Error',
       });
     }
   },
-  login: async (req, res) => {
+  loginAccount: async (req, res) => {
     try {
       const { email, password } = req.body;
 
-      const checkUser = await userModel.getUserByEmail(email);
+      const checkUser = await authModel.getUserByEmail(email);
       if (checkUser.rowCount > 0) {
         if (checkUser.rows[0].is_active) {
           const match = await bcrypt.compare(
@@ -103,7 +170,7 @@ module.exports = {
           );
           if (match) {
             const jwt = await jwtToken(checkUser.rows[0]);
-            success(res, {
+            return success(res, {
               code: 200,
               message: 'Login sucess',
               data: null,
@@ -131,7 +198,76 @@ module.exports = {
         });
       }
     } catch (error) {
-      failed(res, {
+      return failed(res, {
+        code: 500,
+        message: error.message,
+        error: 'Internal Server Error',
+      });
+    }
+  },
+  forgotPassword: async (req, res) => {
+    try {
+      const { email } = req.body;
+      const checkUser = await authModel.getUserByEmail(email);
+      if (checkUser.rowCount) {
+        const token = crypto.randomBytes(30).toString('hex');
+
+        const setDataReset = {
+          to: email,
+          subject: 'Please Confirm Your Reset Password',
+          text: 'Confirm Your Reset Password Peworld Hire Job Account',
+          template: 'index',
+          context: {
+            url: `${API_URL}auth/verify-token?token=${token}`,
+            name: checkUser.rows[0].name,
+          },
+        };
+
+        sendReset(setDataReset);
+        await authModel.updateToken(token, checkUser.rows[0].id);
+        return success(res, {
+          code: 200,
+          message: 'Password reset has been sent via email',
+          data: req.body,
+        });
+      } else {
+        return failed(res, {
+          code: 404,
+          message: 'Email not found',
+          error: 'Not Found',
+        });
+      }
+    } catch (error) {
+      return failed(res, {
+        code: 500,
+        message: error.message,
+        error: 'Internal Server Error',
+      });
+    }
+  },
+  resetPassword: async (req, res) => {
+    try {
+      const { token } = req.query;
+      const checkUser = await authModel.getUserByToken(token);
+
+      if (!checkUser.rowCount) {
+        return failed(res, {
+          code: '401',
+          message: 'Invalid token',
+          error: 'Unauthorized',
+        });
+      }
+
+      const password = await bcrypt.hash(req.body.password, 10);
+      await authModel.updatePassword(password, checkUser.rows[0].id);
+
+      return success(res, {
+        code: 200,
+        message: 'Reset Password Success',
+        data: null,
+      });
+    } catch (error) {
+      return failed(res, {
         code: 500,
         message: error.message,
         error: 'Internal Server Error',

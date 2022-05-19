@@ -11,7 +11,7 @@ module.exports = (req, res, next) => {
     errors.array().map((err) => extractedErrors.push(err.msg));
 
     return failed(res, {
-      code: 400,
+      code: 422,
       message: 'Validation Failed',
       error: extractedErrors,
     });

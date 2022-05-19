@@ -29,7 +29,6 @@ const multerUpload = multer({
       const error = {
         message: 'file must be jpg or png',
       };
-      console.log(ext);
       cb(error, false);
     }
   },

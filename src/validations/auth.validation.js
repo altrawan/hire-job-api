@@ -31,11 +31,40 @@ const register = [
     'password',
     'Password must include one lowercase character, one uppercase character, a number, and a special character.'
   ).matches(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/, 'i'),
+
+  // confirm password
+  check('passwordConfirmation', 'Password confirmation cannot be empty')
+    .not()
+    .isEmpty(),
+  check('passwordConfirmation').custom((value, { req }) => {
+    if (value !== req.body.password) {
+      throw new Error('Password confirmation does not match password');
+    }
+    return true;
+  }),
+];
+
+const registers = [
+  register,
+
+  check('company', 'Company cannot be empty').not().isEmpty(),
+  check('company', 'Company only letter allowed').matches(/^[A-Za-z ]+$/),
+  check('company', 'Company must be between 3 and 50 characters').isLength({
+    min: 3,
+    max: 50,
+  }),
+
+  check('position', 'Company cannot be empty').not().isEmpty(),
+  check('position', 'Company only letter allowed').matches(/^[A-Za-z ]+$/),
+  check('position', 'Company must be between 3 and 50 characters').isLength({
+    min: 3,
+    max: 50,
+  }),
 ];
 
 const login = [
   // email
-  check('email', 'Username required').not().isEmpty(),
+  check('email', 'Email cannot be empty').not().isEmpty(),
   check('email', 'Please enter email correctly').isEmail(),
   check('email', 'Email maximum length is 50 characters').isLength({ max: 50 }),
   // password
@@ -81,6 +110,7 @@ const reset = [
 
 module.exports = {
   register,
+  registers,
   login,
   forgot,
   reset,
