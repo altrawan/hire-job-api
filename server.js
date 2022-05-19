@@ -49,6 +49,7 @@ app.get('/', (req, res) =>
 );
 
 app.use(require('./src/routes/auth.route'));
+app.use(require('./src/routes/worker.route'));
 
 app.use((req, res) => {
   failed(res, {
