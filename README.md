@@ -1,10 +1,10 @@
 19 Mei 2022
 ---
 1. Menyelesaikan end point auth => v
-2. Menyelesaikan end point user
-3. Menyelesaikan end point portofolio
-4. Menyelesaikan end point experience
-5. Menyelesaikan end point skills
+2. Menyelesaikan end point user => v
+3. Menyelesaikan end point portofolio => v
+4. Menyelesaikan end point experience => v
+5. Menyelesaikan end point skills => v
 ---
 20 Mei 2022
 ---
