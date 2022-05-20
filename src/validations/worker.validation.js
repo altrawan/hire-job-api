@@ -18,16 +18,13 @@ const update = [
 
   // domicile
   check('domicile', 'Domicile cannot be empty').not().isEmpty(),
-  check('domicile', 'Domicile Desk only letter allowed').matches(
-    /^[A-Za-z ]+$/
-  ),
   check('domicile', 'Domicile Desk minimum 3 characters').isLength({
     min: 3,
   }),
 
   // workplace
-  check('workplace', 'Workplace cannot be empty').not().isEmpty(),
-  check('workplace', 'Workplace Desk minimum 3 characters').isLength({
+  check('workPlace', 'Workplace cannot be empty').not().isEmpty(),
+  check('workPlace', 'Workplace Desk minimum 3 characters').isLength({
     min: 3,
   }),
 

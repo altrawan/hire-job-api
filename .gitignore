@@ -129,5 +129,6 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# local image
-!public/uploads/user/.gitkeep
+# ignore default image
+!public/uploads/users/profile-default.png
+!public/uploads/portofolio/portofolio-default.png

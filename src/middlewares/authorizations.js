@@ -26,7 +26,7 @@ module.exports = {
     }
   },
   isWorker: (req, res, next) => {
-    if (req.APP_DATA.tokenDecoded.level === 1) {
+    if (req.APP_DATA.tokenDecoded.role === 0) {
       next();
     } else {
       failed(res, {
@@ -37,7 +37,7 @@ module.exports = {
     }
   },
   isRecruiter: (req, res, next) => {
-    if (req.APP_DATA.tokenDecoded.level === 2) {
+    if (req.APP_DATA.tokenDecoded.role === 1) {
       next();
     } else {
       failed(res, {

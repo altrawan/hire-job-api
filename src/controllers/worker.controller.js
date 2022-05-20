@@ -72,20 +72,50 @@ module.exports = {
       });
     }
   },
-  createSkill: async (req, res) => {},
-  updateWorker: async (req, res) => {},
-  updateImage: async (req, res) => {
+  createSkill: async (req, res) => {
     try {
-      const { id } = req.APP_DATA.tokenDecoded;
+      const userId = req.APP_DATA.tokenDecoded.user_id;
+      const { skillName } = req.body;
+
+      const user = await workerModel.getWorkerById(userId);
+
+      if (!user.rowCount) {
+        return failed(res, {
+          code: 404,
+          message: `User by id ${userId} not found`,
+          error: 'Not Found',
+        });
+      }
+
+      for (let i = 0; i < skillName.length; i++) {
+        const setData = {
+          id: uuidv4(),
+          userId,
+          skillName: skillName[i],
+        };
+        await workerModel.createSkill(setData);
+      }
+
+      return success(res, {
+        code: 201,
+        message: `Success create skills`,
+        data: null,
+      });
+    } catch (error) {
+      return failed(res, {
+        code: 500,
+        message: error.message,
+        error: 'Internal Server Error',
+      });
+    }
+  },
+  updateWorker: async (req, res) => {
+    try {
+      const id = req.APP_DATA.tokenDecoded.user_id;
+      const { name, jobDesk, domicile, workPlace, description } = req.body;
       const user = await workerModel.getWorkerById(id);
 
       if (!user.rowCount) {
-        if (req.files) {
-          if (req.files.photo) {
-            deleteFile(req.fies.photo[0].path);
-          }
-        }
-
         return failed(res, {
           code: 404,
           message: `User by id ${id} not found`,
@@ -93,25 +123,19 @@ module.exports = {
         });
       }
 
-      let { photo } = user.rows[0];
-      if (req.files) {
-        if (req.files.photo) {
-          if (user.rows[0].photo !== 'profile-default.png') {
-            deleteFile(`public/uploads/users/${user.rows[0].photo}`);
-          }
-          photo = req.files.photo[0].filename;
-        }
-      }
-
       const setData = {
-        photo,
+        name,
+        jobDesk,
+        domicile,
+        workPlace,
+        description,
         updatedAt: new Date(Date.now()),
       };
 
-      const result = await workerModel.updateImage(data, id);
+      await workerModel.updateWorker(setData, id);
       return success(res, {
         code: 200,
-        message: 'Success update image user',
+        message: 'Success edit profile',
         data: setData,
       });
     } catch (error) {
@@ -122,19 +146,56 @@ module.exports = {
       });
     }
   },
+  updateImage: async (req, res) => {
+    try {
+      const id = req.APP_DATA.tokenDecoded.user_id;
+      const user = await workerModel.getWorkerById(id);
+
+      if (!user.rowCount) {
+        if (req.file) {
+          deleteFile(`public/uploads/users/${req.file.filename}`);
+        }
+        return failed(res, {
+          code: 404,
+          message: `User by id ${id} not found`,
+          error: 'Not Found',
+        });
+      }
+      let { photo } = user.rows[0];
+      if (req.file) {
+        if (user.rows[0].photo !== 'profile-default.png') {
+          deleteFile(`public/uploads/users/${user.rows[0].photo}`);
+        }
+        photo = req.file.filename;
+      }
+      const setData = {
+        photo,
+        updatedAt: new Date(Date.now()),
+      };
+      await workerModel.updateImage(setData, id);
+      return success(res, {
+        code: 200,
+        message: 'Success update image user',
+        data: setData,
+      });
+    } catch (error) {
+      if (req.file) {
+        deleteFile(`public/uploads/users/${req.file.filename}`);
+      }
+      return failed(res, {
+        code: 500,
+        message: error.message,
+        error: 'Internal Server Error',
+      });
+    }
+  },
   updatePassword: async (req, res) => {
     try {
-      const { id } = req.APP_DATA.tokenDecoded;
-      const { newPassword } = req.body;
+      const id = req.APP_DATA.tokenDecoded.user_id;
+      const { password } = req.body;
 
-      const user = await workerModel.getUserById(id);
+      const user = await workerModel.getWorkerById(id);
       if (!user.rowCount) {
-        if (req.files) {
-          if (req.files.photo) {
-            deleteFile(req.fies.photo[0].path);
-          }
-        }
-
         return failed(res, {
           code: 404,
           message: `User by id ${id} not found`,
@@ -142,8 +203,13 @@ module.exports = {
         });
       }
 
-      const hashPassword = await bcrypt.hash(newPassword, 10);
-      const result = await workerModel.updatePassword(hashPassword, id);
+      const hashPassword = await bcrypt.hash(password, 10);
+
+      const setData = {
+        password: hashPassword,
+        updatedAt: new Date(Date.now()),
+      };
+      await workerModel.updatePassword(setData, id);
 
       return success(res, {
         code: 200,
