@@ -115,7 +115,7 @@ module.exports = {
         },
       };
 
-      // sendEmail(setDataEmail);
+      sendEmail(setDataEmail);
       await authModel.createAccount(loginData);
       const result = await authModel.registerRecruiter(userData);
       return success(res, {
