@@ -4,9 +4,10 @@ const jwtAuth = require('../middlewares/jwtAuth');
 const { isWorker } = require('../middlewares/authorizations');
 const { portofolio } = require('../validations/portofolio.validation');
 const validation = require('../middlewares/validation');
-const upload = require('../middlewares/updatePortofolio');
+const upload = require('../middlewares/uploadPortofolio');
 const {
   createPortofolio,
+  getPortofolioByWorkerId,
   getPortofolioById,
   updatePortofolio,
   deletePortofolio,
@@ -18,20 +19,22 @@ router
     '/portofolio',
     jwtAuth,
     isWorker,
+    upload,
     portofolio,
     validation,
     createPortofolio
   )
+  .get('/portofolio-user/:id', jwtAuth, getPortofolioByWorkerId)
   .get('/portofolio/:id', jwtAuth, getPortofolioById)
   .put(
-    '/portofolio',
+    '/portofolio/:id',
     jwtAuth,
     isWorker,
     upload,
-    experience,
+    portofolio,
     validation,
     updatePortofolio
   )
-  .delete('/portofolio', jwtAuth, isWorker, deletePortofolio);
+  .delete('/portofolio/:id', jwtAuth, isWorker, deletePortofolio);
 
 module.exports = router;

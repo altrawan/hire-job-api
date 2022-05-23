@@ -1,18 +1,50 @@
 const { v4: uuidv4 } = require('uuid');
 const { success, failed } = require('../helpers/response');
 const experienceModel = require('../models/experience.model');
-const deleteFile = require('../utils/deleteFile');
+const pagination = require('../utils/pagination');
 
 module.exports = {
+  getExperienceByWorkerId: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { page, limit } = req.query;
+
+      const count = await experienceModel.getCountExperienceByWorkerId(id);
+      const paging = pagination(count.rows[0].count, page, limit);
+      const result = await experienceModel.getExperienceByWorkerId(paging, id);
+
+      if (!result.rowCount) {
+        return failed(res, {
+          code: 404,
+          message: `Experience user by id ${id} not found`,
+          error: 'Not Found',
+        });
+      }
+
+      success(res, {
+        code: 200,
+        message: `Success get experience user by id`,
+        data: result.rows,
+        pagination: paging.response,
+      });
+    } catch (error) {
+      return failed(res, {
+        code: 500,
+        message: error.message,
+        error: 'Internal Server Error',
+      });
+    }
+  },
   getExperienceById: async (req, res) => {
     try {
       const { id } = req.params;
+
       const result = await experienceModel.getExperienceById(id);
 
       if (!result.rowCount) {
         return failed(res, {
           code: 404,
-          message: `User by id ${id} not found`,
+          message: `Experience by id ${id} not found`,
           error: 'Not Found',
         });
       }
@@ -40,11 +72,11 @@ module.exports = {
         ...body,
       };
 
-      await experienceModel.createExperience(setData);
+      const result = await experienceModel.createExperience(setData);
       return success(res, {
         code: 201,
         message: `Success create experience`,
-        data: null,
+        data: result,
       });
     } catch (error) {
       return failed(res, {
@@ -57,13 +89,13 @@ module.exports = {
   updateExperience: async (req, res) => {
     try {
       const { body } = req;
-      const id = req.APP_DATA.tokenDecoded.user_id;
-      const user = await experienceModel.getExperienceByWorkerId(id);
+      const { id } = req.params;
+      const user = await experienceModel.getExperienceById(id);
 
       if (!user.rowCount) {
         return failed(res, {
           code: 404,
-          message: `User by id ${id} not found`,
+          message: `Experience by id ${id} not found`,
           error: 'Not Found',
         });
       }
@@ -73,11 +105,14 @@ module.exports = {
         updatedAt: new Date(Date.now()),
       };
 
-      const result = await experienceModel.updateExperience(setData, user.rows[0].id);
+      const result = await experienceModel.updateExperience(
+        setData,
+        user.rows[0].id
+      );
       return success(res, {
         code: 200,
         message: 'Success edit profile',
-        data: setData,
+        data: result,
       });
     } catch (error) {
       return failed(res, {
@@ -89,13 +124,13 @@ module.exports = {
   },
   deleteExperience: async (req, res) => {
     try {
-      const id = req.APP_DATA.tokenDecoded.user_id;
-      const user = await experienceModel.getExperienceByWorkerId(id);
+      const { id } = req.params;
+      const user = await experienceModel.getExperienceById(id);
 
       if (!user.rowCount) {
         return failed(res, {
           code: 404,
-          message: `User by id ${id} not found`,
+          message: `Experience by id ${id} not found`,
           error: 'Not Found',
         });
       }

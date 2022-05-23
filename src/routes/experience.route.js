@@ -6,6 +6,7 @@ const { experience } = require('../validations/experience.validation');
 const validation = require('../middlewares/validation');
 const {
   createExperience,
+  getExperienceByWorkerId,
   getExperienceById,
   updateExperience,
   deleteExperience,
@@ -21,15 +22,16 @@ router
     validation,
     createExperience
   )
+  .get('/experience-user/:id', jwtAuth, getExperienceByWorkerId)
   .get('/experience/:id', jwtAuth, getExperienceById)
   .put(
-    '/experience',
+    '/experience/:id',
     jwtAuth,
     isWorker,
     experience,
     validation,
     updateExperience
   )
-  .delete('/experience', jwtAuth, isWorker, deleteExperience);
+  .delete('/experience/:id', jwtAuth, isWorker, deleteExperience);
 
 module.exports = router;

@@ -47,18 +47,18 @@ module.exports = {
         text: 'Confirm Your email Peworld Hire Job Account',
         template: 'index',
         context: {
-          url: `${API_URL}auth/verify-token?token=${token}`,
+          url: `${API_URL}auth/verify-email?token=${token}`,
           name,
         },
       };
 
       sendEmail(setDataEmail);
       await authModel.createAccount(loginData);
-      await authModel.registerWorker(userData);
+      const result = await authModel.registerWorker(userData);
       return success(res, {
         code: 201,
         message: 'Success Registered, please verification your email',
-        data: req.body,
+        data: result,
       });
     } catch (error) {
       return failed(res, {
@@ -115,13 +115,13 @@ module.exports = {
         },
       };
 
-      sendEmail(setDataEmail);
+      // sendEmail(setDataEmail);
       await authModel.createAccount(loginData);
-      await authModel.registerRecruiter(userData);
+      const result = await authModel.registerRecruiter(userData);
       return success(res, {
         code: 201,
         message: 'Success Registered, please verification your email',
-        data: req.body,
+        data: result,
       });
     } catch (error) {
       return failed(res, {
@@ -132,27 +132,35 @@ module.exports = {
     }
   },
   verifyEmail: async (req, res) => {
-    const { token } = req.query;
-    const checkToken = await authModel.getUserByToken(token);
-    if (checkToken.rowCount) {
-      if (!checkToken.rowCount) {
-        return failed(res, {
-          code: 400,
-          message: 'Activation failed',
-          error: 'Bad Request',
+    try {
+      const { token } = req.query;
+      const checkToken = await authModel.getUserByToken(token);
+      if (checkToken.rowCount) {
+        if (!checkToken.rowCount) {
+          return failed(res, {
+            code: 400,
+            message: 'Activation failed',
+            error: 'Bad Request',
+          });
+        }
+
+        await authModel.activateEmail(token);
+        res.render('./welcome.ejs', {
+          name: checkToken.rows[0].name,
+          url_home: `${APP_CLIENT}`,
+          url_login: `${APP_CLIENT}/login`,
+        });
+      } else {
+        failed(res, {
+          code: 404,
+          message: 'Token not found',
+          error: 'Not Found',
         });
       }
-
-      await authModel.updateToken(token);
-      res.render('./welcome.ejs', {
-        name: checkToken.rows[0].name,
-        url_home: `${APP_CLIENT}`,
-        url_login: `${APP_CLIENT}/login`,
-      });
-    } else {
+    } catch (error) {
       return failed(res, {
         code: 500,
-        message: err.message,
+        message: error.message,
         error: 'Internal Server Error',
       });
     }
@@ -169,11 +177,11 @@ module.exports = {
             checkUser.rows[0].password
           );
           if (match) {
-            const jwt = await jwtToken(checkUser.rows[0]);
+            const jwt = jwtToken(checkUser.rows[0]);
             return success(res, {
               code: 200,
               message: 'Login sucess',
-              data: null,
+              data: req.body,
               token: jwt,
             });
           } else {
@@ -218,17 +226,17 @@ module.exports = {
           text: 'Confirm Your Reset Password Peworld Hire Job Account',
           template: 'index',
           context: {
-            url: `${API_URL}auth/verify-token?token=${token}`,
+            url: `${API_URL}auth/reset-password?token=${token}`,
             name: checkUser.rows[0].name,
           },
         };
 
         sendReset(setDataReset);
-        await authModel.updateToken(token, checkUser.rows[0].id);
+        const result = await authModel.updateToken(token, checkUser.rows[0].id);
         return success(res, {
           code: 200,
           message: 'Password reset has been sent via email',
-          data: req.body,
+          data: result,
         });
       } else {
         return failed(res, {
@@ -259,12 +267,15 @@ module.exports = {
       }
 
       const password = await bcrypt.hash(req.body.password, 10);
-      await authModel.updatePassword(password, checkUser.rows[0].id);
+      const result = await authModel.updatePassword(
+        password,
+        checkUser.rows[0].id
+      );
 
       return success(res, {
         code: 200,
         message: 'Reset Password Success',
-        data: null,
+        data: result,
       });
     } catch (error) {
       return failed(res, {

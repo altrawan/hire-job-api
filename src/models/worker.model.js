@@ -1,11 +1,11 @@
 const db = require('../config/pg');
 
 module.exports = {
-  getAllWorker: (paging, search, sort, sortType) =>
+  getAllWorker: (paging, sort, sortType) =>
     new Promise((resolve, reject) => {
       db.query(
-        `SELECT * FROM worker INNER JOIN skills ON worker.id = skills.worker_id WHERE skill_name ILIKE $1 ORDER BY ${sort} ${sortType} LIMIT $2 OFFSET $3`,
-        [search, paging.limit, paging.offset],
+        `SELECT * FROM worker ORDER BY ${sort} ${sortType} LIMIT $1 OFFSET $2`,
+        [paging.limit, paging.offset],
         (err, res) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
@@ -53,6 +53,28 @@ module.exports = {
           resolve(res);
         }
       );
+    }),
+  getAllSkill: (search) =>
+    new Promise((resolve, reject) => {
+      db.query(
+        `SELECT * FROM skills WHERE skill_name ILIKE $1`,
+        [search],
+        (err, res) => {
+          if (err) {
+            reject(new Error(`SQL : ${err.message}`));
+          }
+          resolve(res);
+        }
+      );
+    }),
+  getSkillById: (id) =>
+    new Promise((resolve, reject) => {
+      db.query(`SELECT * FROM skills WHERE worker_id=$1`, [id], (err, res) => {
+        if (err) {
+          reject(new Error(`SQL : ${err.message}`));
+        }
+        resolve(res);
+      });
     }),
   createSkill: (data) =>
     new Promise((resolve, reject) => {

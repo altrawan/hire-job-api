@@ -8,21 +8,15 @@ const deleteFile = require('../utils/deleteFile');
 module.exports = {
   getAllWorker: async (req, res) => {
     try {
-      let { page, limit, search, sort, sortType } = req.query;
+      let { page, limit, sort, sortType } = req.query;
 
-      search = !search ? `%` : `%${search}%`;
       sort = sort || 'name';
       sortType = sortType || 'ASC';
 
       const count = await workerModel.getCountWorker();
       const paging = pagination(count.rows[0].count, page, limit);
 
-      const result = await workerModel.getAllWorker(
-        paging,
-        search,
-        sort,
-        sortType
-      );
+      const result = await workerModel.getAllWorker(paging, sort, sortType);
 
       if (!result.rowCount) {
         return failed(res, {
@@ -37,6 +31,61 @@ module.exports = {
         message: `Success get all users data`,
         data: result.rows,
         pagination: paging.response,
+      });
+    } catch (error) {
+      return failed(res, {
+        code: 500,
+        message: error.message,
+        error: 'Internal Server Error',
+      });
+    }
+  },
+  getSkillById: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const result = await workerModel.getSkillById(id);
+
+      if (!result.rowCount) {
+        return failed(res, {
+          code: 404,
+          message: 'Data not found',
+          error: 'Not Found',
+        });
+      }
+
+      return success(res, {
+        code: 200,
+        message: `Success get skill user by id`,
+        data: result.rows,
+      });
+    } catch (error) {
+      return failed(res, {
+        code: 500,
+        message: error.message,
+        error: 'Internal Server Error',
+      });
+    }
+  },
+  getAllSkill: async (req, res) => {
+    try {
+      let { search } = req.query;
+      search = !search ? `%` : `%${search}%`;
+
+      const result = await workerModel.getAllSkill(search);
+
+      if (!result.rowCount) {
+        return failed(res, {
+          code: 404,
+          message: 'Data not found',
+          error: 'Not Found',
+        });
+      }
+
+      return success(res, {
+        code: 200,
+        message: `Success get all skill`,
+        data: result.rows,
       });
     } catch (error) {
       return failed(res, {

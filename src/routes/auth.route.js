@@ -21,8 +21,8 @@ const {
 const router = express.Router();
 
 router
-  .post('/auth/register/worker', register, validation, registerWorker)
-  .post('/auth/register/recruiter', registers, validation, registerRecruiter)
+  .post('/auth/register-worker', register, validation, registerWorker)
+  .post('/auth/register-recruiter', registers, validation, registerRecruiter)
   .get('/auth/verify-email', verifyEmail)
   .post('/auth/login', isVerified, login, validation, loginAccount)
   .put('/auth/forgot-password', isVerified, forgot, validation, forgotPassword)

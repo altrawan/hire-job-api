@@ -39,7 +39,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // ejs
-app.set('views', `${__dirname}/views`);
+app.set('views', `${__dirname}/src/views`);
 app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
