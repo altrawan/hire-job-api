@@ -148,7 +148,7 @@ module.exports = {
         res.render('./welcome.ejs', {
           name: checkToken.rows[0].name,
           url_home: `${APP_CLIENT}`,
-          url_login: `${APP_CLIENT}/login`,
+          url_login: `${APP_CLIENT}/worker/login`,
         });
       } else {
         failed(res, {
