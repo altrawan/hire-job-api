@@ -1,32 +1,41 @@
 const { v4: uuidv4 } = require('uuid');
 const { success, failed } = require('../helpers/response');
 const portofolioModel = require('../models/portofolio.model');
-const pagination = require('../utils/pagination');
 const deleteFile = require('../utils/deleteFile');
 
 module.exports = {
   getPortofolioByWorkerId: async (req, res) => {
     try {
       const { id } = req.params;
-      const { page, limit } = req.query;
-
-      const count = await portofolioModel.getCountPortofolioByWorkerId(id);
-      const paging = pagination(count.rows[0].count, page, limit);
-      const result = await portofolioModel.getPortofolioByWorkerId(paging, id);
+      const result = await portofolioModel.getPortofolioByWorkerId(id);
 
       if (!result.rowCount) {
         return failed(res, {
           code: 404,
-          message: `Portofolio user by id ${id} not found`,
+          message: `Portofolio by id ${id} not found`,
           error: 'Not Found',
         });
       }
 
+      const data = await Promise.all(
+        result.rows.map(async (item) => {
+          const getImage = await portofolioModel.getPortofolioImageById(
+            item.id
+          );
+
+          const obj = {
+            portofolio: item,
+            image: getImage.rows,
+          };
+
+          return obj;
+        })
+      );
+
       success(res, {
         code: 200,
-        message: `Success get portofolio user by id`,
-        data: result.rows,
-        pagination: paging.response,
+        message: `Success get portofolio by id`,
+        data,
       });
     } catch (error) {
       return failed(res, {
@@ -44,15 +53,22 @@ module.exports = {
       if (!result.rowCount) {
         return failed(res, {
           code: 404,
-          message: `User by id ${id} not found`,
+          message: `Portofolio by id ${id} not found`,
           error: 'Not Found',
         });
       }
 
+      const image = await portofolioModel.getPortofolioImageById(id);
+
+      const data = {
+        ...result.rows[0],
+        image: image.rows,
+      };
+
       success(res, {
         code: 200,
         message: `Success get portofolio by id`,
-        data: result.rows[0],
+        data,
       });
     } catch (error) {
       return failed(res, {
@@ -119,13 +135,10 @@ module.exports = {
         });
       }
 
-      // console.log(portofolio.rows[0].image);
-      console.log(images.rows[0].image);
-
       let { image } = images.rows[0];
       if (req.file) {
-        if (images.rows[0].image !== 'portofolio-default.png') {
-          deleteFile(`public/uploads/portofolio/${images.rows[0].image}`);
+        if (image !== 'portofolio-default.png') {
+          deleteFile(`public/uploads/portofolio/${image}`);
         }
         image = req.file.filename;
       }
@@ -139,6 +152,7 @@ module.exports = {
         setData,
         portofolio.rows[0].id
       );
+
       await portofolioModel.updatePortofolioImage(image, portofolio.rows[0].id);
       return success(res, {
         code: 200,
@@ -159,18 +173,18 @@ module.exports = {
   deletePortofolio: async (req, res) => {
     try {
       const { id } = req.params;
-      const user = await portofolioModel.getPortofolioByWorkerId(id);
+      const user = await portofolioModel.getPortofolioById(id);
 
       if (!user.rowCount) {
         return failed(res, {
           code: 404,
-          message: `User by id ${id} not found`,
+          message: `Portofolio by id ${id} not found`,
           error: 'Not Found',
         });
       }
 
-      await portofolioModel.deletePortofolio(user.rows[0].id);
-      await portofolioModel.deletePortofolioImage(user.rows[0].id);
+      await portofolioModel.deletePortofolio(id);
+      await portofolioModel.deletePortofolioImage(id);
       return failed(res, {
         code: 200,
         message: `Success delete portofolio`,

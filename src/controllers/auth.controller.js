@@ -4,6 +4,8 @@ const crypto = require('crypto');
 const { success, failed } = require('../helpers/response');
 const jwtToken = require('../utils/generateJwtToken');
 const authModel = require('../models/auth.model');
+const workerModel = require('../models/worker.model');
+const recruiterModel = require('../models/recruiter.model');
 const { sendEmail, sendReset } = require('../utils/nodemailer');
 const { API_URL, APP_CLIENT } = require('../helpers/env');
 
@@ -13,10 +15,20 @@ module.exports = {
       const { name, email, phoneNumber, password } = req.body;
 
       const checkUser = await authModel.getUserByEmail(email);
+
       if (checkUser.rowCount > 0) {
         return failed(res, {
           code: 409,
           message: 'Email already exist',
+          error: 'Conflict',
+        });
+      }
+
+      const checkPhone = await authModel.getUserByPhoneNumber(phoneNumber);
+      if (checkPhone.rowCount > 0) {
+        return failed(res, {
+          code: 409,
+          message: 'Phone Number already exist',
           error: 'Conflict',
         });
       }
@@ -29,6 +41,7 @@ module.exports = {
         id: uuidv4(),
         userId: id,
         email,
+        phoneNumber,
         password: hashPassword,
         role: 0,
         verifyToken: token,
@@ -37,7 +50,6 @@ module.exports = {
       const userData = {
         id,
         name,
-        phoneNumber,
         photo: 'profile-default.png',
       };
 
@@ -53,8 +65,12 @@ module.exports = {
       };
 
       sendEmail(setDataEmail);
-      await authModel.createAccount(loginData);
-      const result = await authModel.registerWorker(userData);
+      const login = await authModel.createAccount(loginData);
+      const user = await authModel.registerWorker(userData);
+      const result = {
+        ...user,
+        ...login,
+      };
       return success(res, {
         code: 201,
         message: 'Success Registered, please verification your email',
@@ -82,6 +98,15 @@ module.exports = {
         });
       }
 
+      const checkPhone = await authModel.getUserByPhoneNumber(phoneNumber);
+      if (checkPhone.rowCount > 0) {
+        return failed(res, {
+          code: 409,
+          message: 'Phone Number already exist',
+          error: 'Conflict',
+        });
+      }
+
       const id = uuidv4();
       const hashPassword = await bcrypt.hash(password, 10);
       const token = crypto.randomBytes(30).toString('hex');
@@ -90,6 +115,7 @@ module.exports = {
         id: uuidv4(),
         userId: id,
         email,
+        phoneNumber,
         password: hashPassword,
         role: 1,
         verifyToken: token,
@@ -100,7 +126,6 @@ module.exports = {
         name,
         company,
         position,
-        phoneNumber,
         photo: 'profile-default.png',
       };
 
@@ -116,8 +141,12 @@ module.exports = {
       };
 
       sendEmail(setDataEmail);
-      await authModel.createAccount(loginData);
-      const result = await authModel.registerRecruiter(userData);
+      const login = await authModel.createAccount(loginData);
+      const user = await authModel.registerRecruiter(userData);
+      const result = {
+        ...user,
+        ...login,
+      };
       return success(res, {
         code: 201,
         message: 'Success Registered, please verification your email',

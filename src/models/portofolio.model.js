@@ -1,34 +1,14 @@
 const db = require('../config/pg');
 
 module.exports = {
-  getPortofolioByWorkerId: (paging, id) =>
+  getPortofolioByWorkerId: (id) =>
     new Promise((resolve, reject) => {
-      db.query(
-        `SELECT portofolio.id, portofolio.worker_id, portofolio.app_name, portofolio.link_repository, 
-        portofolio.type_portofolio, portofolio_image.image, portofolio.is_active 
-        FROM portofolio INNER JOIN portofolio_image ON portofolio.id = portofolio_image.portofolio_id 
-        WHERE worker_id = $1 LIMIT $2 OFFSET $3`,
-        [id, paging.limit, paging.offset],
-        (err, res) => {
-          if (err) {
-            reject(new Error(`SQL : ${err.message}`));
-          }
-          resolve(res);
+      db.query(`SELECT * FROM portofolio WHERE worker_id = $1`, [id], (err, res) => {
+        if (err) {
+          reject(new Error(`SQL : ${err.message}`));
         }
-      );
-    }),
-  getCountPortofolioByWorkerId: (id) =>
-    new Promise((resolve, reject) => {
-      db.query(
-        `SELECT COUNT(*) FROM portofolio WHERE worker_id = $1`,
-        [id],
-        (err, res) => {
-          if (err) {
-            reject(new Error(`SQL : ${err.message}`));
-          }
-          resolve(res);
-        }
-      );
+        resolve(res);
+      });
     }),
   getPortofolioById: (id) =>
     new Promise((resolve, reject) => {
@@ -124,7 +104,7 @@ module.exports = {
         resolve(res);
       });
     }),
-  deletePortofolioImage: (image) =>
+  deletePortofolioImage: (id) =>
     new Promise((resolve, reject) => {
       db.query(
         `DELETE FROM portofolio_image WHERE portofolio_id = $1`,

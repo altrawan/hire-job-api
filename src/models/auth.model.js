@@ -3,10 +3,10 @@ const db = require('../config/pg');
 module.exports = {
   registerWorker: (data) =>
     new Promise((resolve, reject) => {
-      const { id, name, phoneNumber, photo } = data;
+      const { id, name, photo } = data;
       db.query(
-        `INSERT INTO worker (id, name, phone_number, photo) VALUES ($1, $2, $3, $4)`,
-        [id, name, phoneNumber, photo],
+        `INSERT INTO worker (id, name, photo) VALUES ($1, $2, $3)`,
+        [id, name, photo],
         (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
@@ -17,10 +17,10 @@ module.exports = {
     }),
   registerRecruiter: (data) =>
     new Promise((resolve, reject) => {
-      const { id, name, company, position, phoneNumber, photo } = data;
+      const { id, name, company, position, photo } = data;
       db.query(
-        `INSERT INTO recruiter (id, name, company, position, phone_number, photo) VALUES ($1, $2, $3, $4, $5, $6)`,
-        [id, name, company, position, phoneNumber, photo],
+        `INSERT INTO recruiter (id, name, company, position, photo) VALUES ($1, $2, $3, $4, $5)`,
+        [id, name, company, position, photo],
         (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
@@ -31,10 +31,21 @@ module.exports = {
     }),
   createAccount: (data) =>
     new Promise((resolve, reject) => {
-      const { id, userId, email, password, role, verifyToken } = data;
+      const { id, userId, email, phoneNumber, password, role, verifyToken } =
+        data;
       db.query(
-        `INSERT INTO login (id, user_id, email, password, role, verify_token, is_verified, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [id, userId, email.toLowerCase(), password, role, verifyToken, 0, 0],
+        `INSERT INTO login (id, user_id, email, phone_number, password, role, verify_token, is_verified, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [
+          id,
+          userId,
+          email.toLowerCase(),
+          phoneNumber,
+          password,
+          role,
+          verifyToken,
+          0,
+          0,
+        ],
         (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
@@ -52,14 +63,31 @@ module.exports = {
         resolve(res);
       });
     }),
+  getUserByPhoneNumber: (phoneNumber) =>
+    new Promise((resolve, reject) => {
+      db.query(
+        `SELECT * FROM login WHERE phone_number=$1`,
+        [phoneNumber],
+        (err, res) => {
+          if (err) {
+            reject(new Error(`SQL : ${err.message}`));
+          }
+          resolve(res);
+        }
+      );
+    }),
   getUserByToken: (token) =>
     new Promise((resolve, reject) => {
-      db.query(`SELECT * FROM login WHERE verify_token=$1`, [token], (err, res) => {
-        if (err) {
-          reject(new Error(`SQL : ${err.message}`));
+      db.query(
+        `SELECT * FROM login WHERE verify_token=$1`,
+        [token],
+        (err, res) => {
+          if (err) {
+            reject(new Error(`SQL : ${err.message}`));
+          }
+          resolve(res);
         }
-        resolve(res);
-      });
+      );
     }),
   activateEmail: (token) =>
     new Promise((resolve, reject) => {

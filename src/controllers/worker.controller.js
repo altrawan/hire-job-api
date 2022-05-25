@@ -1,7 +1,9 @@
-const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const { success, failed } = require('../helpers/response');
 const workerModel = require('../models/worker.model');
+const skillModel = require('../models/skill.model');
+const portofolioModel = require('../models/portofolio.model');
+const experienceModel = require('../models/experience.model');
 const pagination = require('../utils/pagination');
 const deleteFile = require('../utils/deleteFile');
 
@@ -26,66 +28,32 @@ module.exports = {
         });
       }
 
+      const data = await Promise.all(
+        result.rows.map(async (item) => {
+          const getSkill = await skillModel.getSkillByWorkerId(item.id);
+          const getPortofolio = await portofolioModel.getPortofolioByWorkerId(
+            item.id
+          );
+          const getExperience = await experienceModel.getExperienceByWorkerId(
+            item.id
+          );
+
+          const obj = {
+            user: item,
+            skill: getSkill.rows,
+            portofolio: getPortofolio.rows,
+            experience: getExperience.rows,
+          };
+
+          return obj;
+        })
+      );
+
       return success(res, {
         code: 200,
         message: `Success get all users data`,
-        data: result.rows,
+        data,
         pagination: paging.response,
-      });
-    } catch (error) {
-      return failed(res, {
-        code: 500,
-        message: error.message,
-        error: 'Internal Server Error',
-      });
-    }
-  },
-  getSkillById: async (req, res) => {
-    try {
-      const { id } = req.params;
-
-      const result = await workerModel.getSkillById(id);
-
-      if (!result.rowCount) {
-        return failed(res, {
-          code: 404,
-          message: 'Data not found',
-          error: 'Not Found',
-        });
-      }
-
-      return success(res, {
-        code: 200,
-        message: `Success get skill user by id`,
-        data: result.rows,
-      });
-    } catch (error) {
-      return failed(res, {
-        code: 500,
-        message: error.message,
-        error: 'Internal Server Error',
-      });
-    }
-  },
-  getAllSkill: async (req, res) => {
-    try {
-      let { search } = req.query;
-      search = !search ? `%` : `%${search}%`;
-
-      const result = await workerModel.getAllSkill(search);
-
-      if (!result.rowCount) {
-        return failed(res, {
-          code: 404,
-          message: 'Data not found',
-          error: 'Not Found',
-        });
-      }
-
-      return success(res, {
-        code: 200,
-        message: `Success get all skill`,
-        data: result.rows,
       });
     } catch (error) {
       return failed(res, {
@@ -98,9 +66,9 @@ module.exports = {
   getWorkerById: async (req, res) => {
     try {
       const { id } = req.params;
-      const result = await workerModel.getWorkerById(id);
+      const user = await workerModel.getWorkerById(id);
 
-      if (!result.rowCount) {
+      if (!user.rowCount) {
         return failed(res, {
           code: 404,
           message: `User by id ${id} not found`,
@@ -108,47 +76,19 @@ module.exports = {
         });
       }
 
+      const skill = await skillModel.getSkillByWorkerId(id);
+      const portofolio = await portofolioModel.getPortofolioByWorkerId(id);
+      const experience = await experienceModel.getExperienceByWorkerId(id);
+
       success(res, {
         code: 200,
         message: `Success get user by id`,
-        data: result.rows[0],
-      });
-    } catch (error) {
-      return failed(res, {
-        code: 500,
-        message: error.message,
-        error: 'Internal Server Error',
-      });
-    }
-  },
-  createSkill: async (req, res) => {
-    try {
-      const userId = req.APP_DATA.tokenDecoded.user_id;
-      const { skillName } = req.body;
-
-      const user = await workerModel.getWorkerById(userId);
-
-      if (!user.rowCount) {
-        return failed(res, {
-          code: 404,
-          message: `User by id ${userId} not found`,
-          error: 'Not Found',
-        });
-      }
-
-      for (let i = 0; i < skillName.length; i++) {
-        const setData = {
-          id: uuidv4(),
-          userId,
-          skillName: skillName[i],
-        };
-        await workerModel.createSkill(setData);
-      }
-
-      return success(res, {
-        code: 201,
-        message: `Success create skills`,
-        data: null,
+        data: {
+          user: user.rows[0],
+          skill: skill.rows,
+          portofolio: portofolio.rows,
+          experience: experience.rows,
+        },
       });
     } catch (error) {
       return failed(res, {
@@ -181,11 +121,11 @@ module.exports = {
         updatedAt: new Date(Date.now()),
       };
 
-      await workerModel.updateWorker(setData, id);
+      const result = await workerModel.updateWorker(setData, id);
       return success(res, {
         code: 200,
         message: 'Success edit profile',
-        data: setData,
+        data: result,
       });
     } catch (error) {
       return failed(res, {
@@ -202,7 +142,7 @@ module.exports = {
 
       if (!user.rowCount) {
         if (req.file) {
-          deleteFile(`public/uploads/users/${req.file.filename}`);
+          deleteFile(`public/uploads/worker/${req.file.filename}`);
         }
         return failed(res, {
           code: 404,
@@ -212,8 +152,8 @@ module.exports = {
       }
       let { photo } = user.rows[0];
       if (req.file) {
-        if (user.rows[0].photo !== 'profile-default.png') {
-          deleteFile(`public/uploads/users/${user.rows[0].photo}`);
+        if (photo !== 'profile-default.png') {
+          deleteFile(`public/uploads/worker/${photo}`);
         }
         photo = req.file.filename;
       }
@@ -221,15 +161,16 @@ module.exports = {
         photo,
         updatedAt: new Date(Date.now()),
       };
-      await workerModel.updateImage(setData, id);
+
+      const result = await workerModel.updateImage(setData, id);
       return success(res, {
         code: 200,
         message: 'Success update image user',
-        data: setData,
+        data: result,
       });
     } catch (error) {
       if (req.file) {
-        deleteFile(`public/uploads/users/${req.file.filename}`);
+        deleteFile(`public/uploads/worker/${req.file.filename}`);
       }
       return failed(res, {
         code: 500,
@@ -258,12 +199,12 @@ module.exports = {
         password: hashPassword,
         updatedAt: new Date(Date.now()),
       };
-      await workerModel.updatePassword(setData, id);
 
+      const result = await workerModel.updatePassword(setData, id);
       return success(res, {
         code: 200,
         message: `Success update password`,
-        data: null,
+        data: result,
       });
     } catch (error) {
       return failed(res, {

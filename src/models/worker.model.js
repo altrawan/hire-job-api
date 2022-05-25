@@ -32,64 +32,6 @@ module.exports = {
         resolve(res);
       });
     }),
-  getWorkerByEmail: (email) =>
-    new Promise((resolve, reject) => {
-      db.query(`SELECT * FROM worker WHERE email=$1`, [email], (err, res) => {
-        if (err) {
-          reject(new Error(`SQL : ${err.message}`));
-        }
-        resolve(res);
-      });
-    }),
-  getWorkerByPhone: (phoneNumber) =>
-    new Promise((resolve, reject) => {
-      db.query(
-        `SELECT * FROM worker WHERE phone_number=$1`,
-        [phoneNumber],
-        (err, res) => {
-          if (err) {
-            reject(new Error(`SQL : ${err.message}`));
-          }
-          resolve(res);
-        }
-      );
-    }),
-  getAllSkill: (search) =>
-    new Promise((resolve, reject) => {
-      db.query(
-        `SELECT * FROM skills WHERE skill_name ILIKE $1`,
-        [search],
-        (err, res) => {
-          if (err) {
-            reject(new Error(`SQL : ${err.message}`));
-          }
-          resolve(res);
-        }
-      );
-    }),
-  getSkillById: (id) =>
-    new Promise((resolve, reject) => {
-      db.query(`SELECT * FROM skills WHERE worker_id=$1`, [id], (err, res) => {
-        if (err) {
-          reject(new Error(`SQL : ${err.message}`));
-        }
-        resolve(res);
-      });
-    }),
-  createSkill: (data) =>
-    new Promise((resolve, reject) => {
-      const { id, userId, skillName } = data;
-      db.query(
-        `INSERT INTO skills (id, worker_id, skill_name, is_active) VALUES($1, $2, $3, $4)`,
-        [id, userId, skillName, 1],
-        (err, res) => {
-          if (err) {
-            reject(new Error(`SQL : ${err.message}`));
-          }
-          resolve(res);
-        }
-      );
-    }),
   updateWorker: (data, id) =>
     new Promise((resolve, reject) => {
       const { name, jobDesk, domicile, workPlace, description, updatedAt } =
@@ -97,11 +39,33 @@ module.exports = {
       db.query(
         `UPDATE worker SET name = $1, job_desk = $2, domicile = $3, work_place = $4, description = $5, updated_at = $6 WHERE id = $7`,
         [name, jobDesk, domicile, workPlace, description, updatedAt, id],
-        (err, res) => {
+        (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
           }
-          resolve(res);
+          const newData = {
+            id,
+            ...data
+          }
+          resolve(newData);
+        }
+      );
+    }),
+  updateAccount: (data, id) =>
+    new Promise((resolve, reject) => {
+      const { email, phoneNumber, updatedAt } = data;
+      db.query(
+        `UPDATE login SET email = $1, phone_number = $2, updated_at = $3 WHERE user_id = $4`,
+        [email, phoneNumber, updatedAt, id],
+        (err) => {
+          if (err) {
+            reject(new Error(`SQL : ${err.message}`));
+          }
+          const newData = {
+            id,
+            ...data,
+          };
+          resolve(newData);
         }
       );
     }),
@@ -111,11 +75,15 @@ module.exports = {
       db.query(
         `UPDATE worker SET photo = $1, updated_at = $2 WHERE id = $3`,
         [photo, updatedAt, id],
-        (err, res) => {
+        (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
           }
-          resolve(res);
+          const newData = {
+            id,
+            ...data
+          }
+          resolve(newData);
         }
       );
     }),
@@ -125,11 +93,15 @@ module.exports = {
       db.query(
         `UPDATE login SET password=$1, updated_at=$2 WHERE user_id=$3`,
         [password, updatedAt, id],
-        (err, res) => {
+        (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
           }
-          resolve(res);
+          const newData = {
+            id,
+            ...data
+          }
+          resolve(newData);
         }
       );
     }),

@@ -1,11 +1,11 @@
 const db = require('../config/pg');
 
 module.exports = {
-  getExperienceByWorkerId: (paging, id) =>
+  getExperienceByWorkerId: (id) =>
     new Promise((resolve, reject) => {
       db.query(
-        `SELECT * FROM experience WHERE worker_id=$1 LIMIT $2 OFFSET $3`,
-        [id, paging.limit, paging.offset],
+        `SELECT * FROM experience WHERE worker_id=$1`,
+        [id],
         (err, res) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
@@ -66,7 +66,7 @@ module.exports = {
             id,
             ...data
           }
-          resolve(res);
+          resolve(newData);
         }
       );
     }),

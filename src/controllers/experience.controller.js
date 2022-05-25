@@ -7,25 +7,21 @@ module.exports = {
   getExperienceByWorkerId: async (req, res) => {
     try {
       const { id } = req.params;
-      const { page, limit } = req.query;
 
-      const count = await experienceModel.getCountExperienceByWorkerId(id);
-      const paging = pagination(count.rows[0].count, page, limit);
-      const result = await experienceModel.getExperienceByWorkerId(paging, id);
+      const result = await experienceModel.getExperienceByWorkerId(id);
 
       if (!result.rowCount) {
         return failed(res, {
           code: 404,
-          message: `Experience user by id ${id} not found`,
+          message: `Experience by id ${id} not found`,
           error: 'Not Found',
         });
       }
 
       success(res, {
         code: 200,
-        message: `Success get experience user by id`,
+        message: `Success get experience by id`,
         data: result.rows,
-        pagination: paging.response,
       });
     } catch (error) {
       return failed(res, {

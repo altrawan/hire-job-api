@@ -5,7 +5,7 @@ const { failed } = require('../helpers/response');
 const multerUpload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, './public/uploads/users');
+      cb(null, './public/uploads/worker');
     },
     filename: (req, file, cb) => {
       const ext = path.extname(file.originalname);
@@ -34,7 +34,7 @@ const multerUpload = multer({
   },
 });
 
-const uploadUser = (req, res, next) => {
+const uploadWorker = (req, res, next) => {
   const multerSingle = multerUpload.single('photo');
   multerSingle(req, res, (err) => {
     if (err) {
@@ -49,4 +49,4 @@ const uploadUser = (req, res, next) => {
   });
 };
 
-module.exports = uploadUser;
+module.exports = uploadWorker;
