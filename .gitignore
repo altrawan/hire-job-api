@@ -130,7 +130,7 @@ dist
 .pnp.*
 
 # ignore default image
-public/
 !public/uploads/worker/profile-default.png
 !public/uploads/recruiter/profile-default.png
 !public/uploads/portofolio/portofolio-default.png
+# public/
