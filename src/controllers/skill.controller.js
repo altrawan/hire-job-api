@@ -1,5 +1,4 @@
 const { v4: uuidv4 } = require('uuid');
-const bcrypt = require('bcrypt');
 const { success, failed } = require('../helpers/response');
 const skillModel = require('../models/skill.model');
 

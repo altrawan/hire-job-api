@@ -4,8 +4,6 @@ const crypto = require('crypto');
 const { success, failed } = require('../helpers/response');
 const jwtToken = require('../utils/generateJwtToken');
 const authModel = require('../models/auth.model');
-const workerModel = require('../models/worker.model');
-const recruiterModel = require('../models/recruiter.model');
 const { sendEmail, sendReset } = require('../utils/nodemailer');
 const { API_URL, APP_CLIENT } = require('../helpers/env');
 

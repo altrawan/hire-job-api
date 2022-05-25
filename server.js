@@ -54,6 +54,7 @@ app.use(require('./src/routes/recruiter.route'));
 app.use(require('./src/routes/skill.route'));
 app.use(require('./src/routes/portofolio.route'));
 app.use(require('./src/routes/experience.route'));
+app.use(require('./src/routes/message.route'));
 
 app.use((req, res) => {
   failed(res, {
