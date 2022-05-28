@@ -17,25 +17,10 @@ module.exports = {
         });
       }
 
-      const data = await Promise.all(
-        result.rows.map(async (item) => {
-          const getImage = await portofolioModel.getPortofolioImageById(
-            item.id
-          );
-
-          const obj = {
-            portofolio: item,
-            image: getImage.rows,
-          };
-
-          return obj;
-        })
-      );
-
       success(res, {
         code: 200,
         message: `Success get portofolio by id`,
-        data,
+        data: result.rows,
       });
     } catch (error) {
       return failed(res, {
@@ -58,17 +43,10 @@ module.exports = {
         });
       }
 
-      const image = await portofolioModel.getPortofolioImageById(id);
-
-      const data = {
-        ...result.rows[0],
-        image: image.rows,
-      };
-
       success(res, {
         code: 200,
         message: `Success get portofolio by id`,
-        data,
+        data: result.rows[0],
       });
     } catch (error) {
       return failed(res, {
@@ -80,27 +58,16 @@ module.exports = {
   },
   createPortofolio: async (req, res) => {
     try {
-      const { appName, linkRepository, typePortofolio } = req.body;
       const userId = req.APP_DATA.tokenDecoded.user_id;
-      const id = uuidv4();
 
       const setData = {
-        id,
-        userId,
-        appName,
-        linkRepository,
-        typePortofolio,
-      };
-
-      const image = req.file ? req.file.filename : 'portofolio-default.png';
-      const setImage = {
         id: uuidv4(),
-        portofolioId: id,
-        image,
+        userId,
+        ...req.body,
+        image: req.file ? req.file.filename : 'portofolio-default.png',
       };
 
       const result = await portofolioModel.createPortofolio(setData);
-      await portofolioModel.createPortofolioImage(setImage);
       return success(res, {
         code: 201,
         message: `Success create portofolio`,
@@ -119,10 +86,8 @@ module.exports = {
   },
   updatePortofolio: async (req, res) => {
     try {
-      const { body } = req;
       const { id } = req.params;
       const portofolio = await portofolioModel.getPortofolioById(id);
-      const images = await portofolioModel.getPortofolioImageById(id);
 
       if (!portofolio.rowCount) {
         if (req.file) {
@@ -135,7 +100,7 @@ module.exports = {
         });
       }
 
-      let { image } = images.rows[0];
+      let { image } = portofolio.rows[0];
       if (req.file) {
         if (image !== 'portofolio-default.png') {
           deleteFile(`public/uploads/portofolio/${image}`);
@@ -144,7 +109,8 @@ module.exports = {
       }
 
       const setData = {
-        ...body,
+        ...req.body,
+        image,
         updatedAt: new Date(Date.now()),
       };
 
@@ -152,8 +118,6 @@ module.exports = {
         setData,
         portofolio.rows[0].id
       );
-
-      await portofolioModel.updatePortofolioImage(image, portofolio.rows[0].id);
       return success(res, {
         code: 200,
         message: 'Success edit profile',
@@ -184,7 +148,6 @@ module.exports = {
       }
 
       await portofolioModel.deletePortofolio(id);
-      await portofolioModel.deletePortofolioImage(id);
       return failed(res, {
         code: 200,
         message: `Success delete portofolio`,

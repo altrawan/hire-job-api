@@ -4,6 +4,7 @@ const jwtAuth = require('../middlewares/jwtAuth');
 const { isWorker } = require('../middlewares/authorizations');
 const { experience } = require('../validations/experience.validation');
 const validation = require('../middlewares/validation');
+const upload = require('../middlewares/uploadExperience');
 const {
   createExperience,
   getExperienceByWorkerId,
@@ -18,6 +19,7 @@ router
     '/experience',
     jwtAuth,
     isWorker,
+    upload,
     experience,
     validation,
     createExperience
@@ -28,6 +30,7 @@ router
     '/experience/:id',
     jwtAuth,
     isWorker,
+    upload,
     experience,
     validation,
     updateExperience

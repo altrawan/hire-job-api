@@ -10,15 +10,21 @@ const deleteFile = require('../utils/deleteFile');
 module.exports = {
   getAllWorker: async (req, res) => {
     try {
-      let { page, limit, sort, sortType } = req.query;
+      let { page, limit, search, sort, sortType } = req.query;
 
+      search = search ? `%${search}%` : '%';
       sort = sort || 'name';
       sortType = sortType || 'ASC';
 
       const count = await workerModel.getCountWorker();
       const paging = pagination(count.rows[0].count, page, limit);
 
-      const result = await workerModel.getAllWorker(paging, sort, sortType);
+      const result = await workerModel.getAllWorker(
+        paging,
+        search,
+        sort,
+        sortType
+      );
 
       if (!result.rowCount) {
         return failed(res, {

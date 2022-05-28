@@ -1,11 +1,11 @@
 const db = require('../config/pg');
 
 module.exports = {
-  getAllWorker: (paging, sort, sortType) =>
+  getAllWorker: (paging, search, sort, sortType) =>
     new Promise((resolve, reject) => {
       db.query(
-        `SELECT * FROM worker ORDER BY ${sort} ${sortType} LIMIT $1 OFFSET $2`,
-        [paging.limit, paging.offset],
+        `SELECT * FROM worker WHERE name ILIKE $1 ORDER BY ${sort} ${sortType} LIMIT $2 OFFSET $3`,
+        [search, paging.limit, paging.offset],
         (err, res) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
@@ -45,8 +45,8 @@ module.exports = {
           }
           const newData = {
             id,
-            ...data
-          }
+            ...data,
+          };
           resolve(newData);
         }
       );
@@ -81,8 +81,8 @@ module.exports = {
           }
           const newData = {
             id,
-            ...data
-          }
+            ...data,
+          };
           resolve(newData);
         }
       );
@@ -99,8 +99,8 @@ module.exports = {
           }
           const newData = {
             id,
-            ...data
-          }
+            ...data,
+          };
           resolve(newData);
         }
       );

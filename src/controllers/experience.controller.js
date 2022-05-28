@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const { success, failed } = require('../helpers/response');
 const experienceModel = require('../models/experience.model');
+const deleteFile = require('../utils/deleteFile');
 
 module.exports = {
   getExperienceByWorkerId: async (req, res) => {
@@ -64,9 +65,9 @@ module.exports = {
       const setData = {
         id: uuidv4(),
         userId,
+        image: req.file ? req.file.filename : 'experience-default.png',
         ...body,
       };
-
       const result = await experienceModel.createExperience(setData);
       return success(res, {
         code: 201,
@@ -74,6 +75,9 @@ module.exports = {
         data: result,
       });
     } catch (error) {
+      if (req.file) {
+        deleteFile(`public/uploads/experience/${req.file.filename}`);
+      }
       return failed(res, {
         code: 500,
         message: error.message,
@@ -88,6 +92,9 @@ module.exports = {
       const user = await experienceModel.getExperienceById(id);
 
       if (!user.rowCount) {
+        if (req.file) {
+          deleteFile(`public/uploads/experience/${req.file.filename}`);
+        }
         return failed(res, {
           code: 404,
           message: `Experience by id ${id} not found`,
@@ -95,8 +102,17 @@ module.exports = {
         });
       }
 
+      let { image } = user.rows[0];
+      if (req.file) {
+        if (image !== 'experience-default.png') {
+          deleteFile(`public/uploads/experience/${image}`);
+        }
+        image = req.file.filename;
+      }
+
       const setData = {
         ...body,
+        image,
         updatedAt: new Date(Date.now()),
       };
 
@@ -110,6 +126,9 @@ module.exports = {
         data: result,
       });
     } catch (error) {
+      if (req.file) {
+        deleteFile(`public/uploads/experience/${req.file.filename}`);
+      }
       return failed(res, {
         code: 500,
         message: error.message,

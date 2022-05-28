@@ -38,11 +38,29 @@ module.exports = {
     }),
   createExperience: (data) =>
     new Promise((resolve, reject) => {
-      const { id, userId, company, position, startDate, endDate, description } =
-        data;
+      const {
+        id,
+        userId,
+        company,
+        position,
+        startDate,
+        endDate,
+        description,
+        image,
+      } = data;
       db.query(
-        `INSERT INTO experience (id, worker_id, company, position, start_date, end_date, description, is_active) VALUES($1, $2, $3, $4, $5, $6, $7, $8)`,
-        [id, userId, company, position, startDate, endDate, description, 1],
+        `INSERT INTO experience (id, worker_id, company, position, start_date, end_date, description, image, is_active) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [
+          id,
+          userId,
+          company,
+          position,
+          startDate,
+          endDate,
+          description,
+          image,
+          1,
+        ],
         (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
@@ -53,19 +71,35 @@ module.exports = {
     }),
   updateExperience: (data, id) =>
     new Promise((resolve, reject) => {
-      const { position, company, startDate, endDate, description, updatedAt } =
-        data;
+      const {
+        position,
+        company,
+        startDate,
+        endDate,
+        description,
+        image,
+        updatedAt,
+      } = data;
       db.query(
-        `UPDATE experience SET position = $1, company = $2, start_date = $3, end_date = $4, description = $5, updated_at = $6 WHERE id = $7`,
-        [position, company, startDate, endDate, description, updatedAt, id],
+        `UPDATE experience SET position = $1, company = $2, start_date = $3, end_date = $4, description = $5, image = $6, updated_at = $7 WHERE id = $8`,
+        [
+          position,
+          company,
+          startDate,
+          endDate,
+          description,
+          image,
+          updatedAt,
+          id,
+        ],
         (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
           }
           const newData = {
             id,
-            ...data
-          }
+            ...data,
+          };
           resolve(newData);
         }
       );
