@@ -2,24 +2,25 @@ const { check } = require('express-validator');
 
 const portofolio = [
   // app name
-  check('appName', 'Position cannot be empty').not().isEmpty(),
-  check('appName', 'Position minimum 3 characters').isLength({
+  check('app_name', 'App Name cannot be empty').not().isEmpty(),
+  check('app_name', 'App Name minimum 3 characters').isLength({
     min: 3,
   }),
 
   // link repository
-  check('linkRepository', 'Link Repository cannot be empty').not().isEmpty(),
-  check('linkRepository', 'Link Repository only URL allowed').isURL(),
+  check('link_repository', 'Link Repository cannot be empty').not().isEmpty(),
+  check('link_repository', 'Link Repository only URL allowed').isURL(),
 
   // type portofolio
-  check('typePortofolio', 'Type Portofolio cannot be empty').not().isEmpty(),
-  check('typePortofolio', 'Type Portofolio only number allowed').isNumeric(),
-  check('typePortofolio', 'Type Portofolio value must be between 0 to 1').isInt(
-    {
-      min: 0,
-      max: 1,
-    }
-  ),
+  check('type_portofolio', 'Type Portofolio cannot be empty').not().isEmpty(),
+  check('type_portofolio', 'Type Portofolio only number allowed').isNumeric(),
+  check(
+    'type_portofolio',
+    'Type Portofolio value must be between 0 to 1'
+  ).isInt({
+    min: 0,
+    max: 1,
+  }),
 ];
 
 module.exports = {

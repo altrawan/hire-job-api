@@ -48,7 +48,7 @@ module.exports = {
       const userData = {
         id,
         name,
-        photo: 'profile-default.png',
+        photo: 'default.png',
       };
 
       const setDataEmail = {
@@ -124,7 +124,7 @@ module.exports = {
         name,
         company,
         position,
-        photo: 'profile-default.png',
+        photo: 'default.png',
       };
 
       const setDataEmail = {
@@ -175,7 +175,7 @@ module.exports = {
         res.render('./welcome.ejs', {
           name: checkToken.rows[0].name,
           url_home: `${APP_CLIENT}`,
-          url_login: `${APP_CLIENT}/worker/login`,
+          url_login: `${APP_CLIENT}/auth/login`,
         });
       } else {
         failed(res, {

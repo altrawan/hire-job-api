@@ -25,11 +25,11 @@ module.exports = {
     }),
   createPortofolio: (data) =>
     new Promise((resolve, reject) => {
-      const { id, userId, appName, linkRepository, typePortofolio, image } =
+      const { id, userId, app_name, link_repository, type_portofolio, image } =
         data;
       db.query(
         `INSERT INTO portofolio (id, worker_id, app_name, link_repository, type_portofolio, image, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [id, userId, appName, linkRepository, typePortofolio, image, 1],
+        [id, userId, app_name, link_repository, type_portofolio, image, 1],
         (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
@@ -65,5 +65,18 @@ module.exports = {
         }
         resolve(res);
       });
+    }),
+  deleteAllPortofolio: (id) =>
+    new Promise((resolve, reject) => {
+      db.query(
+        `DELETE FROM portofolio WHERE worker_id = $1`,
+        [id],
+        (err, res) => {
+          if (err) {
+            reject(new Error(`SQL : ${err.message}`));
+          }
+          resolve(res);
+        }
+      );
     }),
 };

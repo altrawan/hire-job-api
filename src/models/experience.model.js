@@ -43,8 +43,8 @@ module.exports = {
         userId,
         company,
         position,
-        startDate,
-        endDate,
+        start_date,
+        end_date,
         description,
         image,
       } = data;
@@ -55,8 +55,8 @@ module.exports = {
           userId,
           company,
           position,
-          startDate,
-          endDate,
+          start_date,
+          end_date,
           description,
           image,
           1,
@@ -74,8 +74,8 @@ module.exports = {
       const {
         position,
         company,
-        startDate,
-        endDate,
+        start_date,
+        end_date,
         description,
         image,
         updatedAt,
@@ -85,8 +85,8 @@ module.exports = {
         [
           position,
           company,
-          startDate,
-          endDate,
+          start_date,
+          end_date,
           description,
           image,
           updatedAt,
@@ -112,5 +112,18 @@ module.exports = {
         }
         resolve(res);
       });
+    }),
+  deleteAllExperience: (id) =>
+    new Promise((resolve, reject) => {
+      db.query(
+        `DELETE FROM experience WHERE worker_id = $1`,
+        [id],
+        (err, res) => {
+          if (err) {
+            reject(new Error(`SQL : ${err.message}`));
+          }
+          resolve(res);
+        }
+      );
     }),
 };

@@ -1,11 +1,11 @@
 const db = require('../config/pg');
 
 module.exports = {
-  getAllWorker: (paging, search, sort, sortType) =>
+  getAllWorker: (search, sort, sortType, limit, offset) =>
     new Promise((resolve, reject) => {
       db.query(
-        `SELECT * FROM worker WHERE name ILIKE $1 ORDER BY ${sort} ${sortType} LIMIT $2 OFFSET $3`,
-        [search, paging.limit, paging.offset],
+        `SELECT * FROM worker WHERE name ILIKE ('%${search}%') ORDER BY ${sort} ${sortType} LIMIT $1 OFFSET $2`,
+        [limit, offset],
         (err, res) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
@@ -34,11 +34,37 @@ module.exports = {
     }),
   updateWorker: (data, id) =>
     new Promise((resolve, reject) => {
-      const { name, jobDesk, domicile, workPlace, description, updatedAt } =
-        data;
+      const {
+        name,
+        jobDesk,
+        jobStatus,
+        domicile,
+        workPlace,
+        description,
+        instagram,
+        github,
+        gitlab,
+        linkedin,
+        updatedAt,
+      } = data;
       db.query(
-        `UPDATE worker SET name = $1, job_desk = $2, domicile = $3, work_place = $4, description = $5, updated_at = $6 WHERE id = $7`,
-        [name, jobDesk, domicile, workPlace, description, updatedAt, id],
+        `UPDATE worker SET name = $1, job_desk = $2, job_status = $3, domicile = $4, 
+        work_place = $5, description = $6, instagram = $7, github = $8, gitlab = $9, 
+        linkedin = $10, updated_at = $11 WHERE id = $12`,
+        [
+          name,
+          jobDesk,
+          jobStatus,
+          domicile,
+          workPlace,
+          description,
+          instagram,
+          github,
+          gitlab,
+          linkedin,
+          updatedAt,
+          id,
+        ],
         (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));

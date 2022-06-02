@@ -54,6 +54,15 @@ module.exports = {
         }
       );
     }),
+  getUserByUserId: (id) =>
+    new Promise((resolve, reject) => {
+      db.query(`SELECT * FROM login WHERE user_id=$1`, [id], (err, res) => {
+        if (err) {
+          reject(new Error(`SQL : ${err.message}`));
+        }
+        resolve(res);
+      });
+    }),
   getUserByEmail: (email) =>
     new Promise((resolve, reject) => {
       db.query(`SELECT * FROM login WHERE email=$1`, [email], (err, res) => {

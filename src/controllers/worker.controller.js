@@ -1,5 +1,7 @@
+const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const { success, failed } = require('../helpers/response');
+const authModel = require('../models/auth.model');
 const workerModel = require('../models/worker.model');
 const skillModel = require('../models/skill.model');
 const portofolioModel = require('../models/portofolio.model');
@@ -12,18 +14,21 @@ module.exports = {
     try {
       let { page, limit, search, sort, sortType } = req.query;
 
-      search = search ? `%${search}%` : '%';
+      page = Number(page) || 1;
+      limit = Number(limit) || 4;
+      search = search || '';
       sort = sort || 'name';
       sortType = sortType || 'ASC';
+      const offset = (page - 1) * limit;
 
       const count = await workerModel.getCountWorker();
-      const paging = pagination(count.rows[0].count, page, limit);
 
       const result = await workerModel.getAllWorker(
-        paging,
         search,
         sort,
-        sortType
+        sortType,
+        limit,
+        offset
       );
 
       if (!result.rowCount) {
@@ -36,25 +41,40 @@ module.exports = {
 
       const data = await Promise.all(
         result.rows.map(async (item) => {
-          const getSkill = await skillModel.getSkillByWorkerId(item.id);
-          const getPortofolio = await portofolioModel.getPortofolioByWorkerId(
+          const login = await authModel.getUserByUserId(item.id);
+          const skill = await skillModel.getSkillByWorkerId(item.id);
+          const portofolio = await portofolioModel.getPortofolioByWorkerId(
             item.id
           );
-          const getExperience = await experienceModel.getExperienceByWorkerId(
+          const experience = await experienceModel.getExperienceByWorkerId(
             item.id
           );
 
           const obj = {
             user: item,
-            skill: getSkill.rows,
-            portofolio: getPortofolio.rows,
-            experience: getExperience.rows,
+            login: login.rows,
+            skill: skill.rows,
+            portofolio: portofolio.rows,
+            experience: experience.rows,
           };
 
           return obj;
         })
       );
 
+      // pagination with search
+      if (search) {
+        const paging = pagination(result.rowCount, page, limit);
+        return success(res, {
+          code: 200,
+          message: `Success get all users data`,
+          data,
+          pagination: paging.response,
+        });
+      }
+
+      // Paginatin without search
+      const paging = pagination(count.rows[0].count, page, limit);
       return success(res, {
         code: 200,
         message: `Success get all users data`,
@@ -82,6 +102,7 @@ module.exports = {
         });
       }
 
+      const login = await authModel.getUserByUserId(id);
       const skill = await skillModel.getSkillByWorkerId(id);
       const portofolio = await portofolioModel.getPortofolioByWorkerId(id);
       const experience = await experienceModel.getExperienceByWorkerId(id);
@@ -91,6 +112,7 @@ module.exports = {
         message: `Success get user by id`,
         data: {
           user: user.rows[0],
+          login: login.rows,
           skill: skill.rows,
           portofolio: portofolio.rows,
           experience: experience.rows,
@@ -106,14 +128,27 @@ module.exports = {
   },
   updateWorker: async (req, res) => {
     try {
-      const id = req.APP_DATA.tokenDecoded.user_id;
-      const { name, jobDesk, domicile, workPlace, description } = req.body;
-      const user = await workerModel.getWorkerById(id);
+      const userId = req.APP_DATA.tokenDecoded.user_id;
+      const {
+        name,
+        email,
+        phoneNumber,
+        jobDesk,
+        jobStatus,
+        domicile,
+        workPlace,
+        description,
+        instagram,
+        github,
+        gitlab,
+        linkedin,
+      } = req.body;
+      const user = await workerModel.getWorkerById(userId);
 
       if (!user.rowCount) {
         return failed(res, {
           code: 404,
-          message: `User by id ${id} not found`,
+          message: `User by id ${userId} not found`,
           error: 'Not Found',
         });
       }
@@ -121,13 +156,69 @@ module.exports = {
       const setData = {
         name,
         jobDesk,
+        jobStatus,
         domicile,
         workPlace,
         description,
+        instagram,
+        github,
+        gitlab,
+        linkedin,
         updatedAt: new Date(Date.now()),
       };
 
-      const result = await workerModel.updateWorker(setData, id);
+      const setAccount = {
+        email,
+        phoneNumber,
+        updatedAt: new Date(Date.now()),
+      };
+
+      const result = await workerModel.updateWorker(setData, userId);
+      const login = await workerModel.updateAccount(setAccount, userId);
+
+      // add skill
+      const { skillName } = req.body;
+      if (skillName) {
+        await skillModel.deleteAllSkill(userId);
+        for (let i = 0; i < skillName.length; i++) {
+          const setData = {
+            id: uuidv4(),
+            userId,
+            skillName: skillName[i],
+          };
+          await skillModel.createSkill(setData);
+        }
+      }
+
+      // add experience
+      const { experience } = req.body;
+      if (experience) {
+        await experienceModel.deleteAllExperience(userId);
+        experience.map(async (item) => {
+          const setExperience = {
+            id: uuidv4(),
+            userId,
+            image: req.file ? req.file.filename : 'default.png',
+            ...item,
+          };
+          await experienceModel.createExperience(setExperience);
+        });
+      }
+
+      // add portofolio
+      const { portofolio } = req.body;
+      if (portofolio) {
+        await portofolioModel.deleteAllPortofolio(userId);
+        portofolio.map(async (item) => {
+          const setPortofolio = {
+            id: uuidv4(),
+            userId,
+            image: req.file ? req.file.filename : 'default.png',
+            ...item,
+          };
+          await portofolioModel.createPortofolio(setPortofolio);
+        });
+      }
       return success(res, {
         code: 200,
         message: 'Success edit profile',
@@ -158,7 +249,7 @@ module.exports = {
       }
       let { photo } = user.rows[0];
       if (req.file) {
-        if (photo !== 'profile-default.png') {
+        if (photo !== 'default.png') {
           deleteFile(`public/uploads/worker/${photo}`);
         }
         photo = req.file.filename;

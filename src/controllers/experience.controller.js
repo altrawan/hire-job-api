@@ -65,7 +65,7 @@ module.exports = {
       const setData = {
         id: uuidv4(),
         userId,
-        image: req.file ? req.file.filename : 'experience-default.png',
+        image: req.file ? req.file.filename : 'default.png',
         ...body,
       };
       const result = await experienceModel.createExperience(setData);
@@ -104,7 +104,7 @@ module.exports = {
 
       let { image } = user.rows[0];
       if (req.file) {
-        if (image !== 'experience-default.png') {
+        if (image !== 'default.png') {
           deleteFile(`public/uploads/experience/${image}`);
         }
         image = req.file.filename;
@@ -149,7 +149,12 @@ module.exports = {
         });
       }
 
+      if (user.rows[0].image) {
+        deleteFile(`public/uploads/experience/${user.rows[0].image}`);
+      }
+
       await experienceModel.deleteExperience(user.rows[0].id);
+
       return failed(res, {
         code: 200,
         message: `Success delete experience`,

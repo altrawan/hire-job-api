@@ -20,7 +20,7 @@ const {
 const router = express.Router();
 router
   .get('/recruiter/:id', jwtAuth, getRecruiterById)
-  .post('/recruiter/hire', jwtAuth, isRecruiter, hire, validation, hireWorker)
+  .post('/recruiter-hire', jwtAuth, isRecruiter, hire, validation, hireWorker)
   .put('/recruiter', jwtAuth, isRecruiter, update, validation, updateRecruiter)
   .put('/recruiter-image', jwtAuth, isRecruiter, upload, updatePhoto)
   .put(

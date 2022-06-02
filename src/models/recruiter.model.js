@@ -15,6 +15,7 @@ module.exports = {
       const {
         id,
         userId,
+        toUser,
         messageDestination,
         name,
         email,
@@ -22,10 +23,11 @@ module.exports = {
         description,
       } = data;
       db.query(
-        `INSERT INTO hire (id, user_id, message_destination, name, email, phone_number, description, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        `INSERT INTO hire (id, user_id, to_user, message_destination, name, email, phone_number, description, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
         [
           id,
           userId,
+          toUser,
           messageDestination,
           name,
           email,
@@ -44,15 +46,29 @@ module.exports = {
   updateRecruiter: (data, id) =>
     new Promise((resolve, reject) => {
       const {
+        name,
+        position,
         company,
         companyField,
         city,
         description,
+        instagram,
         linkedin,
       } = data;
       db.query(
-        `UPDATE recruiter SET company = $1, company_field = $2, city = $3, description = $4, linkedin = $5 WHERE id = $6`,
-        [company, companyField, city, description, linkedin, id],
+        `UPDATE recruiter SET name = $1, position = $2, company = $3, company_field = $4, 
+        city = $5, description = $6, instagram = $7, linkedin = $8 WHERE id = $9`,
+        [
+          name,
+          position,
+          company,
+          companyField,
+          city,
+          description,
+          instagram,
+          linkedin,
+          id,
+        ],
         (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));

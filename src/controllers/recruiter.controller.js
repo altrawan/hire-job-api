@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const { success, failed } = require('../helpers/response');
 const recruiterModel = require('../models/recruiter.model');
+const authModel = require('../models/auth.model');
 const deleteFile = require('../utils/deleteFile');
 
 module.exports = {
@@ -18,10 +19,15 @@ module.exports = {
         });
       }
 
+      const login = await authModel.getUserByUserId(id);
+
       success(res, {
         code: 200,
         message: `Success get user by id`,
-        data: result.rows[0],
+        data: {
+          user: result.rows[0],
+          login: login.rows,
+        },
       });
     } catch (error) {
       return failed(res, {
@@ -34,12 +40,19 @@ module.exports = {
   hireWorker: async (req, res) => {
     try {
       const userId = req.APP_DATA.tokenDecoded.id;
-      const { messageDestination, name, email, phoneNumber, description } =
-        req.body;
+      const {
+        toUser,
+        messageDestination,
+        name,
+        email,
+        phoneNumber,
+        description,
+      } = req.body;
 
       const setData = {
         id: uuidv4(),
         userId,
+        toUser,
         messageDestination,
         name,
         email,
@@ -65,6 +78,8 @@ module.exports = {
     try {
       const id = req.APP_DATA.tokenDecoded.user_id;
       const {
+        name,
+        position,
         company,
         companyField,
         city,
@@ -85,6 +100,8 @@ module.exports = {
       }
 
       const setData = {
+        name,
+        position,
         company,
         companyField,
         city,
@@ -137,7 +154,7 @@ module.exports = {
       }
       let { photo } = user.rows[0];
       if (req.file) {
-        if (photo !== 'profile-default.png') {
+        if (photo !== 'default.png') {
           deleteFile(`public/uploads/recruiter/${photo}`);
         }
         photo = req.file.filename;

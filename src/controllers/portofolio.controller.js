@@ -64,7 +64,7 @@ module.exports = {
         id: uuidv4(),
         userId,
         ...req.body,
-        image: req.file ? req.file.filename : 'portofolio-default.png',
+        image: req.file ? req.file.filename : 'default.png',
       };
 
       const result = await portofolioModel.createPortofolio(setData);
@@ -102,7 +102,7 @@ module.exports = {
 
       let { image } = portofolio.rows[0];
       if (req.file) {
-        if (image !== 'portofolio-default.png') {
+        if (image !== 'default.png') {
           deleteFile(`public/uploads/portofolio/${image}`);
         }
         image = req.file.filename;
@@ -145,6 +145,10 @@ module.exports = {
           message: `Portofolio by id ${id} not found`,
           error: 'Not Found',
         });
+      }
+
+      if (user.rows[0].image) {
+        deleteFile(`public/uploads/portofolio/${user.rows[0].image}`);
       }
 
       await portofolioModel.deletePortofolio(id);
