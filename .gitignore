@@ -130,8 +130,8 @@ dist
 .pnp.*
 
 # ignore default image
-!public/uploads/worker/default.png
-!public/uploads/recruiter/default.png
-!public/uploads/experience/default.png
-!public/uploads/portofolio/default.png
-public/
+#!public/uploads/worker/default.png
+#!public/uploads/recruiter/default.png
+#!public/uploads/experience/default.png
+#!public/uploads/portofolio/default.png
+#public/
