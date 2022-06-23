@@ -23,9 +23,9 @@ const router = express.Router();
 router
   .post('/auth/register-worker', register, validation, registerWorker)
   .post('/auth/register-recruiter', registers, validation, registerRecruiter)
-  .get('/auth/verify-email', verifyEmail)
+  .get('/auth/activation/:token', verifyEmail)
   .post('/auth/login', isVerified, login, validation, loginAccount)
-  .put('/auth/forgot-password', isVerified, forgot, validation, forgotPassword)
-  .put('/auth/reset-password', isVerified, reset, validation, resetPassword);
+  .put('/auth/forgot', isVerified, forgot, validation, forgotPassword)
+  .put('/auth/reset/:token', isVerified, reset, validation, resetPassword);
 
 module.exports = router;

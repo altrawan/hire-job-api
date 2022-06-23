@@ -4,7 +4,7 @@ const jwtAuth = require('../middlewares/jwtAuth');
 const { isWorker } = require('../middlewares/authorizations');
 const { experience } = require('../validations/experience.validation');
 const validation = require('../middlewares/validation');
-const upload = require('../middlewares/uploadExperience');
+const upload = require('../middlewares/uploads');
 const {
   createExperience,
   getExperienceByWorkerId,

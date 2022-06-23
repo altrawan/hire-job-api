@@ -8,7 +8,7 @@ const {
   password,
 } = require('../validations/recruiter.validation');
 const validation = require('../middlewares/validation');
-const upload = require('../middlewares/uploadRecruiter');
+const upload = require('../middlewares/uploads');
 const {
   getRecruiterById,
   hireWorker,

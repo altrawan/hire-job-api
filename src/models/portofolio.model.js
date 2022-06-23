@@ -25,11 +25,24 @@ module.exports = {
     }),
   createPortofolio: (data) =>
     new Promise((resolve, reject) => {
-      const { id, userId, app_name, link_repository, type_portofolio, image } =
-        data;
+      const { id, userId, appName, linkRepository, typePortofolio } = data;
       db.query(
-        `INSERT INTO portofolio (id, worker_id, app_name, link_repository, type_portofolio, image, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [id, userId, app_name, link_repository, type_portofolio, image, 1],
+        `INSERT INTO portofolio (id, worker_id, app_name, link_repository, type_portofolio, is_active) VALUES ($1, $2, $3, $4, $5, $6)`,
+        [id, userId, appName, linkRepository, typePortofolio, 1],
+        (err) => {
+          if (err) {
+            reject(new Error(`SQL : ${err.message}`));
+          }
+          resolve(data);
+        }
+      );
+    }),
+  uploadImage: (data) =>
+    new Promise((resolve, reject) => {
+      const { id, portofolioId, image } = data;
+      db.query(
+        `INSERT INTO portofolio_image (id, portofolio_id, image) VALUES ($1, $2, $3)`,
+        [id, portofolioId, image],
         (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));

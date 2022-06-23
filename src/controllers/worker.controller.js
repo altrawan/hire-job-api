@@ -8,6 +8,8 @@ const portofolioModel = require('../models/portofolio.model');
 const experienceModel = require('../models/experience.model');
 const pagination = require('../utils/pagination');
 const deleteFile = require('../utils/deleteFile');
+const uploadGoogleDrive = require('../utils/uploadGoogleDrive');
+const deleteGoogleDrive = require('../utils/deleteGoogleDrive');
 
 module.exports = {
   getAllWorker: async (req, res) => {
@@ -190,34 +192,54 @@ module.exports = {
         }
       }
 
+      console.log(req.files.logo);
+
       // add experience
       const { experience } = req.body;
       if (experience) {
         await experienceModel.deleteAllExperience(userId);
         experience.map(async (item) => {
+          const photoGd = await uploadGoogleDrive(req.files.logo[0]);
           const setExperience = {
             id: uuidv4(),
             userId,
-            image: req.file ? req.file.filename : 'default.png',
+            image: req.files.logo[0] ? photoGd.id : null,
             ...item,
           };
           await experienceModel.createExperience(setExperience);
+          deleteFile(req.files.logo[0].path);
         });
       }
 
-      // add portofolio
+      const portofolioId = uuidv4();
       const { portofolio } = req.body;
       if (portofolio) {
         await portofolioModel.deleteAllPortofolio(userId);
         portofolio.map(async (item) => {
           const setPortofolio = {
-            id: uuidv4(),
+            id: portofolioId,
             userId,
-            image: req.file ? req.file.filename : 'default.png',
             ...item,
           };
           await portofolioModel.createPortofolio(setPortofolio);
         });
+      }
+
+      if (req.files) {
+        if (req.files.photo) {
+          req.files.photo.map(async (item) => {
+            // upload new image to google drive
+            const photoGd = await uploadGoogleDrive(item);
+            const setImage = {
+              id: uuidv4(),
+              portofolioId,
+              image: photoGd.id,
+            };
+            await portofolioModel.uploadImage(setImage);
+            // remove photo after upload
+            deleteFile(item.path);
+          });
+        }
       }
       return success(res, {
         code: 200,
@@ -239,7 +261,7 @@ module.exports = {
 
       if (!user.rowCount) {
         if (req.file) {
-          deleteFile(`public/uploads/worker/${req.file.filename}`);
+          deleteFile(req.file.path);
         }
         return failed(res, {
           code: 404,
@@ -247,12 +269,18 @@ module.exports = {
           error: 'Not Found',
         });
       }
+      // upload image to google drive
       let { photo } = user.rows[0];
       if (req.file) {
-        if (photo !== 'default.png') {
-          deleteFile(`public/uploads/worker/${photo}`);
+        if (photo) {
+          // remove old image except default image
+          deleteGoogleDrive(photo);
         }
-        photo = req.file.filename;
+        // upload new image to google drive
+        const photoGd = await uploadGoogleDrive(req.file);
+        photo = photoGd.id;
+        // remove image after upload
+        deleteFile(req.file.path);
       }
       const setData = {
         photo,
@@ -267,7 +295,7 @@ module.exports = {
       });
     } catch (error) {
       if (req.file) {
-        deleteFile(`public/uploads/worker/${req.file.filename}`);
+        deleteFile(req.file.path);
       }
       return failed(res, {
         code: 500,

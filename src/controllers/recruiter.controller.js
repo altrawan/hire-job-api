@@ -4,6 +4,8 @@ const { success, failed } = require('../helpers/response');
 const recruiterModel = require('../models/recruiter.model');
 const authModel = require('../models/auth.model');
 const deleteFile = require('../utils/deleteFile');
+const uploadGoogleDrive = require('../utils/uploadGoogleDrive');
+const deleteGoogleDrive = require('../utils/deleteGoogleDrive');
 
 module.exports = {
   getRecruiterById: async (req, res) => {
@@ -144,7 +146,7 @@ module.exports = {
 
       if (!user.rowCount) {
         if (req.file) {
-          deleteFile(`public/uploads/recruiter/${req.file.filename}`);
+          deleteFile(req.file.path);
         }
         return failed(res, {
           code: 404,
@@ -154,10 +156,15 @@ module.exports = {
       }
       let { photo } = user.rows[0];
       if (req.file) {
-        if (photo !== 'default.png') {
-          deleteFile(`public/uploads/recruiter/${photo}`);
+        if (photo) {
+          // remove old image except default image
+          deleteGoogleDrive(photo);
         }
-        photo = req.file.filename;
+        // upload new image to google drive
+        const photoGd = await uploadGoogleDrive(req.file);
+        photo = photoGd.id;
+        // remove image after upload
+        deleteFile(req.file.path);
       }
       const setData = {
         photo,
@@ -171,7 +178,7 @@ module.exports = {
       });
     } catch (error) {
       if (req.file) {
-        deleteFile(`public/uploads/recruiter/${req.file.filename}`);
+        deleteFile(req.file.path);
       }
       return failed(res, {
         code: 500,

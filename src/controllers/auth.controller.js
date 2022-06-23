@@ -4,8 +4,10 @@ const crypto = require('crypto');
 const { success, failed } = require('../helpers/response');
 const jwtToken = require('../utils/generateJwtToken');
 const authModel = require('../models/auth.model');
-const { sendEmail, sendReset } = require('../utils/nodemailer');
-const { API_URL, APP_CLIENT } = require('../helpers/env');
+const sendEmail = require('../utils/sendEmail');
+const { APP_NAME, EMAIL_FROM, API_URL, APP_CLIENT } = require('../helpers/env');
+const activateAccount = require('../templates/confirm-email');
+const resetAccount = require('../templates/reset-password');
 
 module.exports = {
   registerWorker: async (req, res) => {
@@ -51,18 +53,14 @@ module.exports = {
         photo: 'default.png',
       };
 
-      const setDataEmail = {
-        to: email,
-        subject: 'Please Confirm Your Account',
-        text: 'Confirm Your email Peworld Hire Job Account',
-        template: 'index',
-        context: {
-          url: `${API_URL}auth/verify-email?token=${token}`,
-          name,
-        },
+      const templateEmail = {
+        from: `"${APP_NAME}" <${EMAIL_FROM}>`,
+        to: req.body.email.toLowerCase(),
+        subject: 'Activate Your Account!',
+        html: activateAccount(`${API_URL}auth/activation/${token}`, name),
       };
+      sendEmail(templateEmail);
 
-      sendEmail(setDataEmail);
       const login = await authModel.createAccount(loginData);
       const user = await authModel.registerWorker(userData);
       const result = {
@@ -124,21 +122,17 @@ module.exports = {
         name,
         company,
         position,
-        photo: 'default.png',
+        photo: null,
       };
 
-      const setDataEmail = {
-        to: email,
-        subject: 'Please Confirm Your Account',
-        text: 'Confirm Your email Peworld Hire Job Account',
-        template: 'index',
-        context: {
-          url: `${API_URL}auth/verify-token?token=${token}`,
-          name,
-        },
+      const templateEmail = {
+        from: `"${APP_NAME}" <${EMAIL_FROM}>`,
+        to: req.body.email.toLowerCase(),
+        subject: 'Activate Your Account!',
+        html: activateAccount(`${API_URL}auth/activation/${token}`, name),
       };
+      sendEmail(templateEmail);
 
-      sendEmail(setDataEmail);
       const login = await authModel.createAccount(loginData);
       const user = await authModel.registerRecruiter(userData);
       const result = {
@@ -160,20 +154,21 @@ module.exports = {
   },
   verifyEmail: async (req, res) => {
     try {
-      const { token } = req.query;
+      const { token } = req.params;
       const checkToken = await authModel.getUserByToken(token);
       if (checkToken.rowCount) {
         if (!checkToken.rowCount) {
-          return failed(res, {
-            code: 400,
-            message: 'Activation failed',
-            error: 'Bad Request',
-          });
+          res.send(`
+          <div>
+            <h1>Activation Failed</h1>
+            <h3>Token invalid</h3>
+          </div>`);
+          return;
         }
 
         await authModel.activateEmail(token);
         res.render('./welcome.ejs', {
-          name: checkToken.rows[0].name,
+          email: checkToken.rows[0].email,
           url_home: `${APP_CLIENT}`,
           url_login: `${APP_CLIENT}/auth/login`,
         });
@@ -247,18 +242,18 @@ module.exports = {
       if (checkUser.rowCount) {
         const token = crypto.randomBytes(30).toString('hex');
 
-        const setDataReset = {
-          to: email,
-          subject: 'Please Confirm Your Reset Password',
-          text: 'Confirm Your Reset Password Peworld Hire Job Account',
-          template: 'index',
-          context: {
-            url: `${API_URL}auth/reset-password?token=${token}`,
-            name: checkUser.rows[0].name,
-          },
+        // send email for reset password
+        const templateEmail = {
+          from: `"${APP_NAME}" <${EMAIL_FROM}>`,
+          to: req.body.email.toLowerCase(),
+          subject: 'Reset Your Password!',
+          html: resetAccount(
+            `${APP_CLIENT}auth/reset/${verifyToken}`,
+            `${API_URL}uploads/users/${user[0].photo}`
+          ),
         };
+        sendEmail(templateEmail);
 
-        sendReset(setDataReset);
         const result = await authModel.updateToken(token, checkUser.rows[0].id);
         return success(res, {
           code: 200,

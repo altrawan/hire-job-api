@@ -4,7 +4,8 @@ const jwtAuth = require('../middlewares/jwtAuth');
 const { isWorker } = require('../middlewares/authorizations');
 const { update, password } = require('../validations/worker.validation');
 const validation = require('../middlewares/validation');
-const upload = require('../middlewares/uploadWorker');
+const upload = require('../middlewares/uploads');
+const multipleUpload = require('../middlewares/multipleUpload');
 const {
   getAllWorker,
   getWorkerById,
@@ -17,7 +18,15 @@ const router = express.Router();
 router
   .get('/worker', jwtAuth, getAllWorker)
   .get('/worker/:id', jwtAuth, getWorkerById)
-  .put('/worker', jwtAuth, isWorker, update, validation, updateWorker)
+  .put(
+    '/worker',
+    jwtAuth,
+    isWorker,
+    multipleUpload,
+    update,
+    validation,
+    updateWorker
+  )
   .put('/worker-image', jwtAuth, isWorker, upload, updateImage)
   .put(
     '/worker-password',
