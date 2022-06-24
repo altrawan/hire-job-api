@@ -50,7 +50,7 @@ module.exports = {
       const userData = {
         id,
         name,
-        photo: 'default.png',
+        photo: null,
       };
 
       const templateEmail = {

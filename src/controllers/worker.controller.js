@@ -109,6 +109,19 @@ module.exports = {
       const portofolio = await portofolioModel.getPortofolioByWorkerId(id);
       const experience = await experienceModel.getExperienceByWorkerId(id);
 
+      const data = await Promise.all(
+        portofolio.rows.map(async (item) => {
+          const image = await portofolioModel.getPortofolioImage(item.id);
+
+          const obj = {
+            project: item,
+            image: image.rows,
+          };
+
+          return obj;
+        })
+      );
+
       success(res, {
         code: 200,
         message: `Success get user by id`,
@@ -117,6 +130,7 @@ module.exports = {
           login: login.rows,
           skill: skill.rows,
           portofolio: portofolio.rows,
+          portofolio_image: data,
           experience: experience.rows,
         },
       });
@@ -192,55 +206,63 @@ module.exports = {
         }
       }
 
-      console.log(req.files.logo);
-
       // add experience
+      let logo = null;
+      if (req.files) {
+        if (req.files.logo) {
+          logo = await uploadGoogleDrive(req.files.logo[0]);
+        }
+      }
+
       const { experience } = req.body;
       if (experience) {
         await experienceModel.deleteAllExperience(userId);
         experience.map(async (item) => {
-          const photoGd = await uploadGoogleDrive(req.files.logo[0]);
           const setExperience = {
             id: uuidv4(),
             userId,
-            image: req.files.logo[0] ? photoGd.id : null,
+            image: logo ? logo.id : null,
             ...item,
           };
           await experienceModel.createExperience(setExperience);
-          deleteFile(req.files.logo[0].path);
+          if (req.files) {
+            if (req.files.logo) {
+              deleteFile(req.files.logo[0].path);
+            }
+          }
         });
       }
 
-      const portofolioId = uuidv4();
       const { portofolio } = req.body;
       if (portofolio) {
         await portofolioModel.deleteAllPortofolio(userId);
         portofolio.map(async (item) => {
+          const portofolioId = uuidv4();
           const setPortofolio = {
             id: portofolioId,
             userId,
             ...item,
           };
           await portofolioModel.createPortofolio(setPortofolio);
+          if (req.files) {
+            if (req.files.photo) {
+              req.files.photo.map(async (item) => {
+                // upload new image to google drive
+                const photoGd = await uploadGoogleDrive(item);
+                const setImage = {
+                  id: uuidv4(),
+                  portofolioId,
+                  image: photoGd.id,
+                };
+                await portofolioModel.uploadImage(setImage);
+                // remove photo after upload
+                deleteFile(item.path);
+              });
+            }
+          }
         });
       }
 
-      if (req.files) {
-        if (req.files.photo) {
-          req.files.photo.map(async (item) => {
-            // upload new image to google drive
-            const photoGd = await uploadGoogleDrive(item);
-            const setImage = {
-              id: uuidv4(),
-              portofolioId,
-              image: photoGd.id,
-            };
-            await portofolioModel.uploadImage(setImage);
-            // remove photo after upload
-            deleteFile(item.path);
-          });
-        }
-      }
       return success(res, {
         code: 200,
         message: 'Success edit profile',

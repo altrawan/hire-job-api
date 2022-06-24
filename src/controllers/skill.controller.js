@@ -60,17 +60,20 @@ module.exports = {
       const userId = req.APP_DATA.tokenDecoded.user_id;
       const { skillName } = req.body;
 
-      const user = await skillModel.getSkillByWorkerId(userId);
+      const skill = await skillModel.getSkillByWorkerId(userId);
 
-      if (!user.rowCount) {
-        return failed(res, {
-          code: 404,
-          message: `Skill by id ${userId} not found`,
-          error: 'Not Found',
-        });
+      // if (!user.rowCount) {
+      //   return failed(res, {
+      //     code: 404,
+      //     message: `Skill by id ${userId} not found`,
+      //     error: 'Not Found',
+      //   });
+      // }
+
+      if (skill.rowCount) {
+        await skillModel.deleteAllSkill(userId);
       }
 
-      await skillModel.deleteAllSkill(userId);
       for (let i = 0; i < skillName.length; i++) {
         const setData = {
           id: uuidv4(),

@@ -25,15 +25,28 @@ module.exports = {
     }),
   createPortofolio: (data) =>
     new Promise((resolve, reject) => {
-      const { id, userId, appName, linkRepository, typePortofolio } = data;
+      const { id, userId, app_name, link_repository, type_portofolio } = data;
       db.query(
         `INSERT INTO portofolio (id, worker_id, app_name, link_repository, type_portofolio, is_active) VALUES ($1, $2, $3, $4, $5, $6)`,
-        [id, userId, appName, linkRepository, typePortofolio, 1],
+        [id, userId, app_name, link_repository, type_portofolio, 1],
         (err) => {
           if (err) {
             reject(new Error(`SQL : ${err.message}`));
           }
           resolve(data);
+        }
+      );
+    }),
+  getPortofolioImage: (id) =>
+    new Promise((resolve, reject) => {
+      db.query(
+        `SELECT * FROM portofolio_image WHERE portofolio_id = $1`,
+        [id],
+        (err, res) => {
+          if (err) {
+            reject(new Error(`SQL : ${err.message}`));
+          }
+          resolve(res);
         }
       );
     }),
