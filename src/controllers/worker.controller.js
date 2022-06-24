@@ -217,7 +217,7 @@ module.exports = {
       const { experience } = req.body;
       if (experience) {
         await experienceModel.deleteAllExperience(userId);
-        experience.map(async (item) => {
+        JSON.parse(experience).map(async (item) => {
           const setExperience = {
             id: uuidv4(),
             userId,
@@ -236,7 +236,7 @@ module.exports = {
       const { portofolio } = req.body;
       if (portofolio) {
         await portofolioModel.deleteAllPortofolio(userId);
-        portofolio.map(async (item) => {
+        JSON.parse(portofolio).map(async (item) => {
           const portofolioId = uuidv4();
           const setPortofolio = {
             id: portofolioId,
