@@ -45,8 +45,8 @@ const upload = (req, res, next) => {
 
       failed(res, {
         code: 400,
-        message: 'Upload File Error',
-        error: errorMessage,
+        message: errorMessage,
+        error: 'Upload File Error',
       });
     } else {
       next();

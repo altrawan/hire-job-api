@@ -3,11 +3,81 @@ const bcrypt = require('bcrypt');
 const { success, failed } = require('../helpers/response');
 const recruiterModel = require('../models/recruiter.model');
 const authModel = require('../models/auth.model');
+const pagination = require('../utils/pagination');
 const deleteFile = require('../utils/deleteFile');
 const uploadGoogleDrive = require('../utils/uploadGoogleDrive');
 const deleteGoogleDrive = require('../utils/deleteGoogleDrive');
 
 module.exports = {
+  getAllRecruiter: async (req, res) => {
+    try {
+      let { page, limit, search, sort, sortType } = req.query;
+
+      page = Number(page) || 1;
+      limit = Number(limit) || 4;
+      search = search || '';
+      sort = sort || 'name';
+      sortType = sortType || 'ASC';
+      const offset = (page - 1) * limit;
+
+      const count = await recruiterModel.getCountRecruiter();
+
+      const result = await recruiterModel.getAllRecruiter(
+        search,
+        sort,
+        sortType,
+        limit,
+        offset
+      );
+
+      if (!result.rowCount) {
+        return failed(res, {
+          code: 404,
+          message: 'Data not found',
+          error: 'Not Found',
+        });
+      }
+
+      const data = await Promise.all(
+        result.rows.map(async (item) => {
+          const login = await authModel.getUserByUserId(item.id);
+
+          const obj = {
+            user: item,
+            login: login.rows,
+          };
+
+          return obj;
+        })
+      );
+
+      // pagination with search
+      if (search) {
+        const paging = pagination(result.rowCount, page, limit);
+        return success(res, {
+          code: 200,
+          message: `Success get all users data`,
+          data,
+          pagination: paging.response,
+        });
+      }
+
+      // Paginatin without search
+      const paging = pagination(count.rows[0].count, page, limit);
+      return success(res, {
+        code: 200,
+        message: `Success get all users data`,
+        data,
+        pagination: paging.response,
+      });
+    } catch (error) {
+      return failed(res, {
+        code: 500,
+        message: error.message,
+        error: 'Internal Server Error',
+      });
+    }
+  },
   getRecruiterById: async (req, res) => {
     try {
       const { id } = req.params;

@@ -1,6 +1,28 @@
 const db = require('../config/pg');
 
 module.exports = {
+  getAllRecruiter: (search, sort, sortType, limit, offset) =>
+    new Promise((resolve, reject) => {
+      db.query(
+        `SELECT * FROM recruiter WHERE name ILIKE ('%${search}%') ORDER BY ${sort} ${sortType} LIMIT $1 OFFSET $2`,
+        [limit, offset],
+        (err, res) => {
+          if (err) {
+            reject(new Error(`SQL : ${err.message}`));
+          }
+          resolve(res);
+        }
+      );
+    }),
+  getCountRecruiter: () =>
+    new Promise((resolve, reject) => {
+      db.query(`SELECT COUNT(*) FROM recruiter`, (err, res) => {
+        if (err) {
+          reject(new Error(`SQL : ${err.message}`));
+        }
+        resolve(res);
+      });
+    }),
   getRecruiterById: (id) =>
     new Promise((resolve, reject) => {
       db.query(`SELECT * FROM recruiter WHERE id=$1`, [id], (err, res) => {

@@ -10,6 +10,7 @@ const {
 const validation = require('../middlewares/validation');
 const upload = require('../middlewares/uploads');
 const {
+  getAllRecruiter,
   getRecruiterById,
   hireWorker,
   updateRecruiter,
@@ -19,6 +20,7 @@ const {
 
 const router = express.Router();
 router
+  .get('/recruiter', jwtAuth, getAllRecruiter)
   .get('/recruiter/:id', jwtAuth, getRecruiterById)
   .post('/recruiter-hire', jwtAuth, isRecruiter, hire, validation, hireWorker)
   .put('/recruiter', jwtAuth, isRecruiter, update, validation, updateRecruiter)
