@@ -48,14 +48,12 @@ const registers = [
   register,
 
   check('company', 'Company cannot be empty').not().isEmpty(),
-  check('company', 'Company only letter allowed').matches(/^[A-Za-z ]+$/),
   check('company', 'Company must be between 3 and 50 characters').isLength({
     min: 3,
     max: 50,
   }),
 
   check('position', 'Company cannot be empty').not().isEmpty(),
-  check('position', 'Company only letter allowed').matches(/^[A-Za-z ]+$/),
   check('position', 'Company must be between 3 and 50 characters').isLength({
     min: 3,
     max: 50,

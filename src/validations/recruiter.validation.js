@@ -9,9 +9,6 @@ const update = [
 
   // company field
   check('companyField', 'Company Field cannot be empty').not().isEmpty(),
-  check('companyField', 'Company Field only letter allowed').matches(
-    /^[A-Za-z ]+$/
-  ),
   check('companyField', 'Company Field minimum 3 characters').isLength({
     min: 3,
   }),

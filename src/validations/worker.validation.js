@@ -19,7 +19,6 @@ const update = [
 
   // job desk
   check('jobDesk', 'Job Desk cannot be empty').not().isEmpty(),
-  check('jobDesk', 'Job Desk only letter allowed').matches(/^[A-Za-z ]+$/),
   check('jobDesk', 'Job Desk minimum 3 characters').isLength({
     min: 3,
   }),

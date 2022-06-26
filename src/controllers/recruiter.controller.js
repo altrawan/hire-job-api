@@ -224,6 +224,7 @@ module.exports = {
           error: 'Not Found',
         });
       }
+
       let { photo } = user.rows[0];
       if (req.file) {
         if (photo) {
@@ -236,10 +237,12 @@ module.exports = {
         // remove image after upload
         deleteFile(req.file.path);
       }
+
       const setData = {
         photo,
         updatedAt: new Date(Date.now()),
       };
+      
       await recruiterModel.updateImage(setData, id);
       return success(res, {
         code: 200,
