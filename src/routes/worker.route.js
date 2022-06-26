@@ -3,6 +3,7 @@ const express = require('express');
 const jwtAuth = require('../middlewares/jwtAuth');
 const { isWorker } = require('../middlewares/authorizations');
 const { update, password } = require('../validations/worker.validation');
+const socialValidation = require('../validations/social.validation');
 const validation = require('../middlewares/validation');
 const upload = require('../middlewares/uploads');
 const multipleUpload = require('../middlewares/multipleUpload');
@@ -25,6 +26,7 @@ router
     multipleUpload,
     update,
     validation,
+    socialValidation,
     updateWorker
   )
   .put('/worker-image', jwtAuth, isWorker, upload, updateImage)

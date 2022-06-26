@@ -5,6 +5,9 @@ const helmet = require('helmet');
 const xss = require('xss-clean');
 const compression = require('compression');
 const bodyParser = require('body-parser');
+const http = require('http');
+const socketIo = require('socket.io');
+const listenSocket = require('./src/socket');
 const { APP_NAME, NODE_ENV, PORT } = require('./src/helpers/env');
 const { failed } = require('./src/helpers/response');
 
@@ -54,7 +57,7 @@ app.use(require('./src/routes/recruiter.route'));
 app.use(require('./src/routes/skill.route'));
 app.use(require('./src/routes/portofolio.route'));
 app.use(require('./src/routes/experience.route'));
-app.use(require('./src/routes/message.route'));
+app.use(require('./src/routes/chat.route'));
 app.use(require('./src/routes/opinion.route'));
 
 app.use((req, res) => {
@@ -65,7 +68,18 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+const io = socketIo(server, {
+  cors: {
+    origin: '*',
+  },
+});
+io.on('connection', (socket) => {
+  console.log('New client connected');
+  listenSocket(io, socket);
+})
+
+server.listen(PORT, () => {
   console.log(
     `Server running running at port ${PORT} with ${NODE_ENV} environment`
   );

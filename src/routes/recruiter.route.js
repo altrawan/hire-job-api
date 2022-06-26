@@ -8,6 +8,7 @@ const {
   password,
 } = require('../validations/recruiter.validation');
 const validation = require('../middlewares/validation');
+const socialValidation = require('../validations/social.validation');
 const upload = require('../middlewares/uploads');
 const {
   getAllRecruiter,
@@ -23,7 +24,15 @@ router
   .get('/recruiter', jwtAuth, getAllRecruiter)
   .get('/recruiter/:id', jwtAuth, getRecruiterById)
   .post('/recruiter-hire', jwtAuth, isRecruiter, hire, validation, hireWorker)
-  .put('/recruiter', jwtAuth, isRecruiter, update, validation, updateRecruiter)
+  .put(
+    '/recruiter',
+    jwtAuth,
+    isRecruiter,
+    update,
+    validation,
+    socialValidation,
+    updateRecruiter
+  )
   .put('/recruiter-image', jwtAuth, isRecruiter, upload, updatePhoto)
   .put(
     '/recruiter-password',

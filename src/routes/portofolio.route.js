@@ -4,7 +4,7 @@ const jwtAuth = require('../middlewares/jwtAuth');
 const { isWorker } = require('../middlewares/authorizations');
 const { portofolio } = require('../validations/portofolio.validation');
 const validation = require('../middlewares/validation');
-const upload = require('../middlewares/uploadPortofolio');
+const upload = require('../middlewares/uploads');
 const {
   createPortofolio,
   getPortofolioByWorkerId,
