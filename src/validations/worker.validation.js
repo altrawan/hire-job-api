@@ -9,6 +9,14 @@ const update = [
     max: 50,
   }),
 
+  // phone number
+  check('phoneNumber', 'Phone Number cannot be empty').not().isEmpty(),
+  check('phoneNumber', 'Phone Number only number allowed').isNumeric(),
+  check(
+    'phoneNumber',
+    'Phone Number must be between 11 and 13 characters'
+  ).isLength({ min: 11, max: 13 }),
+
   // job desk
   check('jobDesk', 'Job Desk cannot be empty').not().isEmpty(),
   check('jobDesk', 'Job Desk only letter allowed').matches(/^[A-Za-z ]+$/),

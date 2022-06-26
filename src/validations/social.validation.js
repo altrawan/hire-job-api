@@ -7,45 +7,29 @@ module.exports = (req, res, next) => {
 
     if (req.body.instagram) {
       if (!validUrl.isUri(req.body.instagram)) {
-        extractedErrors.push({
-          msg: 'Instagram url is not valid',
-          param: 'instagram',
-          location: 'body',
-        });
+        extractedErrors.push('Instagram url is not valid');
       }
     }
 
     if (req.body.linkedin) {
       if (!validUrl.isUri(req.body.linkedin)) {
-        extractedErrors.push({
-          msg: 'Linkedin url is not valid',
-          param: 'linkedin',
-          location: 'body',
-        });
+        extractedErrors.push('Linkedin url is not valid');
       }
     }
 
     if (req.body.github) {
       if (!validUrl.isUri(req.body.github)) {
-        extractedErrors.push({
-          msg: 'Github url is not valid',
-          param: 'github',
-          location: 'body',
-        });
+        extractedErrors.push('Github url is not valid');
       }
     }
 
     if (req.body.gitlab) {
       if (!validUrl.isUri(req.body.gitlab)) {
-        extractedErrors.push({
-          msg: 'Gitlab url is not valid',
-          param: 'gitlab',
-          location: 'body',
-        });
+        extractedErrors.push('Gitlab url is not valid');
       }
     }
 
-    if (error.length) {
+    if (extractedErrors.length) {
       return failed(res, {
         code: 422,
         message: 'Validation Failed',
