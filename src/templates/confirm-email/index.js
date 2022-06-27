@@ -173,12 +173,12 @@ const index = (link, name) => {
                                       <tr>
                                           <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
 
-                                              <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;background-color:rgb(143, 143, 143)">
+                                              <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;border-spacing:0px;">
                                                   <tbody>
                                                       <tr>
-                                                          <td style="width:200px;">
+                                                          <td style="width:250px;">
 
-                                                              <img height="auto" src="https://lh3.googleusercontent.com/d/1WVrwo9yY-SQ7rh7SpYUOvykp1hWVyTNo" style="border:0;display:block;outline:none;text-decoration:none;width:100%;" width="64" />
+                                                              <img height="auto" src="https://i.postimg.cc/wBXQNQhC/Logo.png" style="border:0;display:block;outline:none;text-decoration:none;width:100%;" width="250" />
 
                                                           </td>
                                                       </tr>
@@ -187,6 +187,8 @@ const index = (link, name) => {
 
                                           </td>
                                       </tr>
+
+                                      <br />
 
                                       <tr>
                                           <td align="center" style="font-size:0px;padding:10px 25px;padding-bottom:40px;word-break:break-word;">
