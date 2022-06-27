@@ -5,6 +5,12 @@ module.exports = (req, res, next) => {
   try {
     const extractedErrors = [];
 
+    if (req.body.link_repository) {
+      if (!validUrl.isUri(req.body.link_repository)) {
+        extractedErrors.push('Link Repository url is not valid');
+      }
+    }
+
     if (req.body.instagram) {
       if (!validUrl.isUri(req.body.instagram)) {
         extractedErrors.push('Instagram url is not valid');

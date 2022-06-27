@@ -9,7 +9,6 @@ const portofolio = [
 
   // link repository
   check('link_repository', 'Link Repository cannot be empty').not().isEmpty(),
-  check('link_repository', 'Link Repository only URL allowed').isURL(),
 
   // type portofolio
   check('type_portofolio', 'Type Portofolio cannot be empty').not().isEmpty(),

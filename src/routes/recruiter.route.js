@@ -8,7 +8,7 @@ const {
   password,
 } = require('../validations/recruiter.validation');
 const validation = require('../middlewares/validation');
-const socialValidation = require('../validations/social.validation');
+const socialValidation = require('../validations/url.validation');
 const upload = require('../middlewares/uploads');
 const {
   getAllRecruiter,

@@ -213,9 +213,9 @@ const index = (link, name) => {
 
                                               <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">
                                                   <tr>
-                                                      <td align="center" bgcolor="#2F67F6" role="presentation" style="border:none;border-radius:3px;color:#ffffff;cursor:auto;padding:15px 25px;" valign="middle">
+                                                      <td align="center" bgcolor="#5e50a1" role="presentation" style="border:none;border-radius:3px;color:#ffffff;cursor:auto;padding:15px 25px;" valign="middle">
                                                           <a href="${link}" style="text-decoration: none;">
-                                                              <p style="background:#2F67F6;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;font-weight:normal;line-height:120%;Margin:0;text-decoration:none;text-transform:none;">
+                                                              <p style="background:#5e50a1;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;font-weight:normal;line-height:120%;Margin:0;text-decoration:none;text-transform:none;">
                                                                   Confirm Your Email
                                                               </p>
                                                           </a>
@@ -318,7 +318,7 @@ const index = (link, name) => {
                                                           <td align="center" style="font-size:0px;padding:0;word-break:break-word;">
 
                                                               <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;font-weight:300;line-height:1;text-align:center;color:#575757;">
-                                                                  Blanja App. Inc, 109 Jatinagara, Jawa Barat 46273, Indonesia
+                                                                  Peworld Hire. Inc, 109 Jatinagara, Jawa Barat 46273, Indonesia
                                                               </div>
 
                                                           </td>

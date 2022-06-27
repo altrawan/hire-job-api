@@ -238,23 +238,23 @@ module.exports = {
   forgotPassword: async (req, res) => {
     try {
       const { email } = req.body;
-      const checkUser = await authModel.getUserByEmail(email);
-      if (checkUser.rowCount) {
-        const token = crypto.randomBytes(30).toString('hex');
+      const user = await authModel.getUserByEmail(email);
+      if (user.rowCount) {
+        const verifyToken = crypto.randomBytes(30).toString('hex');
 
         // send email for reset password
         const templateEmail = {
           from: `"${APP_NAME}" <${EMAIL_FROM}>`,
           to: req.body.email.toLowerCase(),
           subject: 'Reset Your Password!',
-          html: resetAccount(
-            `${APP_CLIENT}auth/reset/${verifyToken}`,
-            `${API_URL}uploads/users/${user[0].photo}`
-          ),
+          html: resetAccount(`${APP_CLIENT}auth/reset/${verifyToken}`),
         };
         sendEmail(templateEmail);
 
-        const result = await authModel.updateToken(token, checkUser.rows[0].id);
+        const result = await authModel.updateToken(
+          verifyToken,
+          user.rows[0].id
+        );
         return success(res, {
           code: 200,
           message: 'Password reset has been sent via email',
@@ -277,10 +277,10 @@ module.exports = {
   },
   resetPassword: async (req, res) => {
     try {
-      const { token } = req.query;
-      const checkUser = await authModel.getUserByToken(token);
+      const { token } = req.params;
+      const user = await authModel.getUserByToken(token);
 
-      if (!checkUser.rowCount) {
+      if (!user.rowCount) {
         return failed(res, {
           code: '401',
           message: 'Invalid token',
@@ -289,10 +289,7 @@ module.exports = {
       }
 
       const password = await bcrypt.hash(req.body.password, 10);
-      const result = await authModel.updatePassword(
-        password,
-        checkUser.rows[0].id
-      );
+      const result = await authModel.updatePassword(password, user.rows[0].id);
 
       return success(res, {
         code: 200,

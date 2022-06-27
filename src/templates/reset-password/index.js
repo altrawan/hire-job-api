@@ -1,4 +1,4 @@
-const index = (link, photo) => {
+const index = (link) => {
   const htmlContent = `
   <!DOCTYPE html>
   <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
@@ -186,11 +186,11 @@ const index = (link, photo) => {
                                                   style="border-collapse:collapse;border-spacing:0px;">
                                                   <tbody>
                                                       <tr>
-                                                          <td style="width:64px;">
+                                                          <td style="width:250px;">
 
-                                                              <img height="auto" src="https://i.imgur.com/Igd3EmY.png"
+                                                              <img height="auto" src="https://i.postimg.cc/wBXQNQhC/Logo.png"
                                                                   style="border:0;display:block;outline:none;text-decoration:none;width:100%;"
-                                                                  width="64" />
+                                                                  width="250" />
 
                                                           </td>
                                                       </tr>
@@ -199,6 +199,8 @@ const index = (link, photo) => {
 
                                           </td>
                                       </tr>
+
+                                      <br />
 
                                       <tr>
                                           <td align="center"
@@ -226,40 +228,17 @@ const index = (link, photo) => {
 
                                       <tr>
                                           <td align="center"
-                                              style="font-size:0px;padding:10px 25px;word-break:break-word;">
-
-                                              <table align="center" border="0" cellpadding="0" cellspacing="0"
-                                                  role="presentation"
-                                                  style="border-collapse:collapse;border-spacing:0px;">
-                                                  <tbody>
-                                                      <tr>
-                                                          <td style="width:128px;">
-
-                                                              <img height="auto" src="${photo}"
-                                                                  style="border:0;display:block;outline:none;text-decoration:none;width:100%;"
-                                                                  width="128" />
-
-                                                          </td>
-                                                      </tr>
-                                                  </tbody>
-                                              </table>
-
-                                          </td>
-                                      </tr>
-
-                                      <tr>
-                                          <td align="center"
                                               style="font-size:0px;padding:10px 25px;padding-top:30px;padding-bottom:50px;word-break:break-word;">
 
                                               <table align="center" border="0" cellpadding="0" cellspacing="0"
                                                   role="presentation" style="border-collapse:separate;line-height:100%;">
                                                   <tr>
-                                                      <td align="center" bgcolor="#2F67F6" role="presentation"
+                                                      <td align="center" bgcolor="#5e50a1" role="presentation"
                                                           style="border:none;border-radius:3px;color:#ffffff;cursor:auto;padding:15px 25px;"
                                                           valign="middle">
                                                           <a href="${link}" style="text-decoration: none;">
                                                               <p
-                                                                  style="background:#2F67F6;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;font-weight:normal;line-height:120%;Margin:0;text-decoration:none;text-transform:none;">
+                                                                  style="background:#5e50a1;color:#ffffff;font-family:'Helvetica Neue',Arial,sans-serif;font-size:15px;font-weight:normal;line-height:120%;Margin:0;text-decoration:none;text-transform:none;">
                                                                   Reset Password
                                                               </p>
                                                           </a>
@@ -271,13 +250,33 @@ const index = (link, photo) => {
                                       </tr>
 
                                       <tr>
+                                          <td align="center" style="font-size:0px;padding:10px 25px;padding-bottom:0;word-break:break-word;">
+
+                                              <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;line-height:22px;text-align:center;color:#555;">
+                                                  Or reset password using this link:
+                                              </div>
+
+                                          </td>
+                                      </tr>
+
+                                      <tr>
+                                          <td align="center" style="font-size:0px;padding:10px 25px;padding-bottom:40px;word-break:break-word;">
+
+                                              <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;line-height:22px;text-align:center;color:#555;">
+                                                  <a href="${link}" style="color:#2F67F6">${link}</a>
+                                              </div>
+
+                                          </td>
+                                      </tr>
+
+                                      <tr>
                                           <td align="center"
                                               style="font-size:0px;padding:10px 25px;padding-bottom:40px;word-break:break-word;">
 
                                               <div
                                                   style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:16px;line-height:20px;text-align:center;color:#7F8FA4;">
                                                   If you did not make this request, just ignore this email. Otherwise
-                                                  please click the button above to reset your password.
+                                                  please click the button or link above to reset your password.
                                               </div>
 
                                           </td>
@@ -348,7 +347,7 @@ const index = (link, photo) => {
 
                                                               <div
                                                                   style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;font-weight:300;line-height:1;text-align:center;color:#575757;">
-                                                                  Some Firm Ltd, 35 Avenue. City 10115, USA
+                                                                  Peworld Hire. Inc, 109 Jatinagara, Jawa Barat 46273, Indonesia
                                                               </div>
 
                                                           </td>
