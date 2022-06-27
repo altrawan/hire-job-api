@@ -63,6 +63,9 @@ This app was built with some technologies below:
 - [JSON Web Tokens](https://jwt.io/)
 - [Nodemailer](https://nodemailer.com/about/)
 - [PostgreSQL](https://www.postgresql.org/)
+- [Bcrypt](https://www.npmjs.com/package/bcrypt)
+- [Google APIs](https://github.com/googleapis/google-api-nodejs-client)
+- [Socket.io](https://socket.io/)
 - and other
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -125,12 +128,14 @@ DB_PORT=
 JWT_SECRET=
 JWT_EXPIRED=
 
-# email
-HOST_STMP=
-PORT_STMP=
-EMAIL_AUTH_STMP=
-PASS_AUTH_STMP=
+# google
 EMAIL_FROM=
+EMAIL_USER=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+REDIRECT_URI=
+GMAIL_REFRESH_TOKEN=
+DRIVE_REFRESH_TOKEN=
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
