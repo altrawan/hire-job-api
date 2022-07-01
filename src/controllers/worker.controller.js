@@ -304,7 +304,7 @@ module.exports = {
         // remove image after upload
         deleteFile(req.file.path);
       }
-      
+
       const setData = {
         photo,
         updatedAt: new Date(Date.now()),

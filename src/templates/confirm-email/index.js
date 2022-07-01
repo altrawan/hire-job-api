@@ -194,7 +194,7 @@ const index = (link, name) => {
                                           <td align="center" style="font-size:0px;padding:10px 25px;padding-bottom:40px;word-break:break-word;">
 
                                               <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:28px;font-weight:bold;line-height:1;text-align:center;color:#555;">
-                                                  Welcome Peworld Hire
+                                                  Welcome to Peworld Hire
                                               </div>
 
                                           </td>
